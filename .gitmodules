@@ -1,0 +1,3 @@
+[submodule "Assembler32"]
+	path = Assembler32
+	url = git@github.com:wlagos3/Assembler32.git
