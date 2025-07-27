@@ -30,11 +30,11 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity decode is
+entity write_back is
 --  Port ( );
-end decode;
+end write_back;
 
-architecture Behavioral of decode is
+architecture Behavioral of write_back is
 
 begin
 

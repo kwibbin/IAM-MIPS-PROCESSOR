@@ -30,11 +30,11 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity decode is
+entity execute is
 --  Port ( );
-end decode;
+end execute;
 
-architecture Behavioral of decode is
+architecture Behavioral of execute is
 
 begin
 
