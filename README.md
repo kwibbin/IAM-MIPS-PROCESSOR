@@ -1,4 +1,5 @@
-32-bit MIPS processor implementation for Basys-3 Artix-7 FPGA
+32-bit MIPS processor implementation for an FPGA
+    - I used XC7A35T-1CPG236C
 - Custom HW implementation
 - MIPS-based assembly language
 - Custom machine code
