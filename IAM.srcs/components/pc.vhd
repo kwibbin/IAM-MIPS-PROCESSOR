@@ -20,13 +20,31 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity pc is
---  Port ( );
-end pc;
+entity PC is
+  Port (
+    clk    : in std_logic;
+    rst    : in std_logic; -- active high
+    pc_in  : in std_logic_vector(31 downto 0);
+    
+    pc_out : out std_logic_vector(31 downto 0)
+    );
+end PC;
 
-architecture Behavioral of pc is
+architecture Behavioral of PC is
+
+signal pc_buf : std_logic_vector(31 downto 0);
 
 begin
 
+process(clk, rst)
+begin
+    if rst = '1' then
+        pc_buf <= (others => '0');
+    elsif rising_edge(clk) then
+        pc_buf <= pc_in;
+    end if;
+end process;
+
+pc_out <= pc_buf;
 
 end Behavioral;
