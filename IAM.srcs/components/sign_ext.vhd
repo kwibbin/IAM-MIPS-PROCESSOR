@@ -19,14 +19,19 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity sign_ext is
---  Port ( );
+    Port (
+        in_d16  : in std_logic_vector(15 downto 0); -- instr[15:0] (imm field)
+        out_d32 : out std_logic_vector(31 downto 0)
+    );
 end sign_ext;
 
 architecture Behavioral of sign_ext is
 
 begin
 
+    out_d32 <= std_logic_vector(resize(signed(in_d16), 32));
 
 end Behavioral;
