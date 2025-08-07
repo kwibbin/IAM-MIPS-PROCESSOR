@@ -20,11 +20,11 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity instruction_mem is
+entity data_mem is
 --  Port ( );
-end instruction_mem;
+end data_mem;
 
-architecture Behavioral of instruction_mem is
+architecture Behavioral of data_mem is
 
 begin
 
