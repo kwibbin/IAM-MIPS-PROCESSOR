@@ -22,33 +22,36 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity instruction_mem is
-  Port (
-    clk   : in std_logic;
-    pc    : in std_logic_vector(31 downto 0);
-    instr : out std_logic_vector(31 downto 0)
-  );
+    Port (
+        clk   : in std_logic;
+        pc    : in std_logic_vector(31 downto 0);
+        instr : out std_logic_vector(31 downto 0)
+    );
 end instruction_mem;
 
 architecture Behavioral of instruction_mem is
 
-  constant addr_range : positive := 16383;  -- 64KB / 4-byte word = 16K words
-  type mem_arr is array(0 to addr_range) of std_logic_vector(31 downto 0);
-  signal instr_ROM : mem_arr := (
-    -- Instruction initialization here | TODO: set up single channel ROM w/ BRAM
-    others => (others => '0')
-  );
+    constant addr_range : positive := 16383;  -- 64KB / 4-byte word = 16K words
+    type mem_arr is array(0 to addr_range) of std_logic_vector(7 downto 0);
+    signal instr_ROM : mem_arr := (
 
-  signal instr_buff : std_logic_vector(31 downto 0);
+    others => (others => '0')
+    );
+
+    signal instr_buff : std_logic_vector(31 downto 0);   -- byte aligned
 
 begin
 
-  process(clk)
-  begin
-    if rising_edge(clk) then
-      instr_buff <= instr_ROM(to_integer(unsigned(pc(15 downto 2))));  -- word-aligned access
-    end if;
-  end process;
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            instr_buff(31 downto 24) <= instr_ROM(to_integer(unsigned(pc)));
+            instr_buff(23 downto 16) <= instr_ROM(to_integer(unsigned(pc) + 1));
+            instr_buff(15 downto 8)  <= instr_ROM(to_integer(unsigned(pc) + 2));
+            instr_buff(7 downto 0)   <= instr_ROM(to_integer(unsigned(pc) + 3));
+        end if;
+    end process;
 
-  instr <= instr_buff;
+    instr <= instr_buff;
 
 end Behavioral;
