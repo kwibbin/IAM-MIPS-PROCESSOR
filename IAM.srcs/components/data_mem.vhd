@@ -27,12 +27,12 @@ entity data_memory is
         clk    : in std_logic;
         rst    : in std_logic;
 
-        mem_w : in std_logic;
-        mem_r : in std_logic;
+        mem_w  : in std_logic;
+        mem_r  : in std_logic;
 
         addr   : in std_logic_vector(31 downto 0);
-        w_d     : in std_logic_vector(31 downto 0);
-        r_d     : out std_logic_vector(31 downto 0)
+        w_d    : in std_logic_vector(31 downto 0);
+        r_d    : out std_logic_vector(31 downto 0)
     );
 end data_memory;
 
