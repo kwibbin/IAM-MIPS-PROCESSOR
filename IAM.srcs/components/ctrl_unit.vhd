@@ -25,7 +25,6 @@ entity ctrl_unit is
         opcode     : in std_logic_vector(5 downto 0);
         reg_dst    : out std_logic;
         jump       : out std_logic;
-        link       : out std_logic;
         branch     : out std_logic;
         mem_r      : out std_logic;
         mem_to_reg : out std_logic;
