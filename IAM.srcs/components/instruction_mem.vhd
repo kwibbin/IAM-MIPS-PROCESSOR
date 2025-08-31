@@ -58,7 +58,6 @@ begin
 
     process(pc)
     begin
-        -- TODO: convert to be generic
         instr(31 downto 24) <= instr_ROM(to_integer(unsigned(pc)));
         instr(23 downto 16) <= instr_ROM(to_integer(unsigned(pc) + 1));
         instr(15 downto 8)  <= instr_ROM(to_integer(unsigned(pc) + 2));
