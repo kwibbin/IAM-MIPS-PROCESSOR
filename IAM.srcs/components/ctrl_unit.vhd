@@ -46,7 +46,6 @@ begin
             when "000000" => -- add sub and or xor sll srl sra jr
                 reg_dst    <= '1';
                 jump       <= '0';
-                link       <= '0';
                 branch     <= '0';
                 mem_r      <= '0';
                 mem_to_reg <= '0';
@@ -58,7 +57,6 @@ begin
                 when "000001" => -- addi
                 reg_dst    <= '0';
                 jump       <= '0';
-                link       <= '0';
                 branch     <= '0';
                 mem_r      <= '0';
                 mem_to_reg <= '0';
@@ -70,7 +68,6 @@ begin
                 when "000010" => -- beq
                 reg_dst    <= '0';
                 jump       <= '0';
-                link       <= '0';
                 branch     <= '1';
                 mem_r      <= '0';
                 mem_to_reg <= '0';
@@ -82,7 +79,6 @@ begin
                 when "000011" => -- bneq
                 reg_dst    <= '0';
                 jump       <= '0';
-                link       <= '0';
                 branch     <= '1';
                 mem_r      <= '0';
                 mem_to_reg <= '0';
@@ -94,7 +90,6 @@ begin
                 when "000100" => -- beqz
                 reg_dst    <= '0';
                 jump       <= '0';
-                link       <= '0';
                 branch     <= '1';
                 mem_r      <= '0';
                 mem_to_reg <= '0';
@@ -106,7 +101,6 @@ begin
                 when "000101" => -- bltz
                 reg_dst    <= '0';
                 jump       <= '0';
-                link       <= '0';
                 branch     <= '1';
                 mem_r      <= '0';
                 mem_to_reg <= '0';
@@ -118,7 +112,6 @@ begin
                 when "000110" => -- bgtz
                 reg_dst    <= '0';
                 jump       <= '0';
-                link       <= '0';
                 branch     <= '1';
                 mem_r      <= '0';
                 mem_to_reg <= '0';
@@ -130,7 +123,6 @@ begin
                 when "000111" => -- blt
                 reg_dst    <= '0';
                 jump       <= '0';
-                link       <= '0';
                 branch     <= '1';
                 mem_r      <= '0';
                 mem_to_reg <= '0';
@@ -142,7 +134,6 @@ begin
                 when "001000" => -- bgt
                 reg_dst    <= '0';
                 jump       <= '0';
-                link       <= '0';
                 branch     <= '1';
                 mem_r      <= '0';
                 mem_to_reg <= '0';
@@ -154,7 +145,6 @@ begin
                 when "001001" => -- lw
                 reg_dst    <= '0';
                 jump       <= '0';
-                link       <= '0';
                 branch     <= '0';
                 mem_r      <= '1';
                 mem_to_reg <= '1';
@@ -166,7 +156,6 @@ begin
                 when "001010" => -- sw
                 reg_dst    <= '0';
                 jump       <= '0';
-                link       <= '0';
                 branch     <= '0';
                 mem_r      <= '0';
                 mem_to_reg <= '0';
@@ -178,7 +167,6 @@ begin
                 when "001011" => -- lh
                 reg_dst    <= '0';
                 jump       <= '0';
-                link       <= '0';
                 branch     <= '0';
                 mem_r      <= '1';
                 mem_to_reg <= '1';
@@ -190,7 +178,7 @@ begin
                 when "001100" => -- sh
                 reg_dst    <= '0';
                 jump       <= '0';
-                link       <= '0';
+
                 branch     <= '0';
                 mem_r      <= '0';
                 mem_to_reg <= '0';
@@ -202,7 +190,6 @@ begin
                 when "111111" => -- j
                 reg_dst    <= '0';
                 jump       <= '1';
-                link       <= '0';
                 branch     <= '0';
                 mem_r      <= '0';
                 mem_to_reg <= '0';
@@ -214,7 +201,6 @@ begin
                 when "111110" => -- jal
                 reg_dst    <= '0';
                 jump       <= '1';
-                link       <= '1';
                 branch     <= '0';
                 mem_r      <= '0';
                 mem_to_reg <= '0';
@@ -226,7 +212,6 @@ begin
                 when others =>
                 reg_dst    <= '0';
                 jump       <= '0';
-                link       <= '0';
                 branch     <= '0';
                 mem_r      <= '0';
                 mem_to_reg <= '0';
