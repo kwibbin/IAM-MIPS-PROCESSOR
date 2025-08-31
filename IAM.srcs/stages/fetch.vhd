@@ -38,8 +38,8 @@ entity fetch is
         -- includes both branch/jump addr & pc + 4
         mux_in_d : in std_logic_vector(addr_width * mux_n - 1 downto 0);
 
-        pc_out    : out std_logic_vector(addr_width - 1 downto 0);
-        pc_out_p4 : out std_logic_vector(addr_width - 1 downto 0);
+        pc    : out std_logic_vector(addr_width - 1 downto 0);
+        pc_p4 : out std_logic_vector(addr_width - 1 downto 0);
         instr     : out std_logic_vector(data_width - 1 downto 0)
     );
 end fetch;
@@ -101,9 +101,9 @@ fetch_adder : entity work.adder(Behavioral)
     port map (
         in_d1 => pc_s,
         in_d2 => std_logic_vector(resize(unsigned(alignment), addr_width)),
-        out_d => pc_out_p4
+        out_d => pc_p4
     );
 
-pc_out <= pc_s;
+pc <= pc_s;
 
 end Behavioral;
