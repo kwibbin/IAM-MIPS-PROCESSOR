@@ -28,23 +28,23 @@ entity decode is
         addr_width : positive := 16
     );
     port (
-        clk        : in std_logic;
-        rst        : in std_logic;
+        clk           : in std_logic;
+        rst           : in std_logic;
 
-        reg_w      : in std_logic;  -- ctrl unit flag from wb
-        write_reg  : in std_logic_vector(4 downto 0); -- either instr[20:16] or instr[15:11] from wb
-        write_d    : in std_logic_vector(data_width - 1 downto 0);
-        pc_in      : in std_logic_vector(data_width - 1 downto 0);
-        pc_p4_in    : in std_logic_vector(data_width - 1 downto 0);
-        instr      : in std_logic_vector(data_width - 1 downto 0);
+        reg_w         : in std_logic;  -- ctrl unit flag from wb
+        write_reg     : in std_logic_vector(4 downto 0); -- either instr[20:16] or instr[15:11] from wb
+        write_d       : in std_logic_vector(data_width - 1 downto 0);
+        pc_in         : in std_logic_vector(data_width - 1 downto 0);
+        pc_p4_in      : in std_logic_vector(data_width - 1 downto 0);
+        instr         : in std_logic_vector(data_width - 1 downto 0);
 
-        ctrl_flags : out std_logic_vector(11 downto 0);
-        instr_20_0 : out std_logic_vector(20 downto 0);
-        pc_out     : out std_logic_vector(data_width - 1 downto 0);
-        pc_p4_out  : out std_logic_vector(data_width - 1 downto 0);
-        reg_d_1    : out std_logic_vector(data_width - 1 downto 0);
-        reg_d_2    : out std_logic_vector(data_width - 1 downto 0);
-        branch_dst : out std_logic_vector(data_width - 1 downto 0)
+        ctrl_flags    : out std_logic_vector(11 downto 0);
+        instr_20_0    : out std_logic_vector(20 downto 0);
+        pc_out        : out std_logic_vector(data_width - 1 downto 0);
+        pc_p4_out     : out std_logic_vector(data_width - 1 downto 0);
+        reg_d_1       : out std_logic_vector(data_width - 1 downto 0);
+        reg_d_2       : out std_logic_vector(data_width - 1 downto 0);
+        branch_offset : out std_logic_vector(data_width - 1 downto 0)
     );
 end decode;
 
@@ -81,9 +81,9 @@ reg_file : entity work.reg_mem(Behavioral)
         read_d2   => reg_d_2
     );
 
-pc_out <= pc_in;
-pc_p4_out <= pc_p4_in;
-instr_20_0 <= instr(20 downto 0);
-branch_dst <= std_logic_vector(resize(signed(instr(15 downto 0)), data_width));
+pc_out        <= pc_in;
+pc_p4_out     <= pc_p4_in;
+instr_20_0    <= instr(20 downto 0);
+branch_offset <= std_logic_vector(resize(signed(instr(15 downto 0)), data_width));
 
 end Behavioral;

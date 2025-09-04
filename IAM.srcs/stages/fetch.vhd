@@ -24,23 +24,23 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity fetch is
     generic (
-        mux_n : positive := 2;
+        mux_n      : positive := 2;
         addr_width : positive := 16;
         data_width : positive := 32;
-        alignment : std_logic_vector(3 downto 0) := "0100"
+        alignment  : std_logic_vector(3 downto 0) := "0100"
     );
     port (
-        clk : in std_logic;
-        rst : in std_logic;
+        clk        : in std_logic;
+        rst        : in std_logic;
         -- ctrl unit flags
-        branch   : in std_logic;
-        jump     : in std_logic;
+        branch     : in std_logic;
+        jump       : in std_logic;
         -- includes both branch/jump addr & pc + 4
-        mux_in_d : in std_logic_vector(addr_width * mux_n - 1 downto 0);
+        mux_in_d   : in std_logic_vector(addr_width * mux_n - 1 downto 0);
 
-        pc    : out std_logic_vector(addr_width - 1 downto 0);
-        pc_p4 : out std_logic_vector(addr_width - 1 downto 0);
-        instr     : out std_logic_vector(data_width - 1 downto 0)
+        pc         : out std_logic_vector(addr_width - 1 downto 0);
+        pc_p4      : out std_logic_vector(addr_width - 1 downto 0);
+        instr      : out std_logic_vector(data_width - 1 downto 0)
     );
 end fetch;
 
@@ -64,7 +64,7 @@ end process;
 fetch_mux : entity work.mux(Behavioral)
     generic map (
         in_n => mux_n,
-        data_width => addr_width
+        out_width => addr_width
     )
     port map (
         sel => mux_sel,
@@ -96,7 +96,7 @@ fetch_instr_mem : entity work.instruction_mem(Behavioral)
 
 fetch_adder : entity work.adder(Behavioral)
     generic map(
-        addr_width => addr_width
+        out_width => addr_width
     )
     port map (
         in_d1 => pc_s,
