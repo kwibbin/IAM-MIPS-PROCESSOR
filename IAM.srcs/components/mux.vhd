@@ -23,12 +23,12 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity mux is
     generic (
         in_n : positive := 2;
-        data_width : positive := 32
+        out_width : positive := 32
     );
     port (
         sel   : in natural range 0 to in_n - 1;
-        in_d  : in std_logic_vector(in_n * data_width - 1 downto 0);
-        out_d : out std_logic_vector(data_width - 1 downto 0)
+        in_d  : in std_logic_vector(in_n * out_width - 1 downto 0);
+        out_d : out std_logic_vector(out_width - 1 downto 0)
     );
 end mux;
 
@@ -38,7 +38,7 @@ begin
 
 process(in_d, sel)
 begin
-    out_d <= in_d((sel + 1) * data_width - 1 downto sel * data_width);
+    out_d <= in_d((sel + 1) * out_width - 1 downto sel * out_width);
 end process;
 
 end Behavioral;

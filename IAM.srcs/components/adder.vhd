@@ -23,12 +23,12 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity adder is
     generic (
-        addr_width : positive := 16
+        out_width    : positive := 32
     );
     port (
-        in_d1, in_d2 : in std_logic_vector(addr_width - 1 downto 0);
+        in_d1, in_d2 : in std_logic_vector(out_width - 1 downto 0);
 
-        out_d        : out std_logic_vector(addr_width - 1 downto 0)
+        out_d        : out std_logic_vector(out_width - 1 downto 0)
     );
 end adder;
 

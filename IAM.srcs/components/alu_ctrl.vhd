@@ -23,7 +23,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity alu_ctrl is
   Port (
-    alu_op_in  : in  std_logic_vector(3 downto 0);  -- "flag" from ctrl_unit
+    alu_op_in  : in  std_logic_vector(3 downto 0);  -- flag from ctrl_unit
     func       : in  std_logic_vector(5 downto 0);  -- Inst[5:0]
     alu_op_out : out std_logic_vector(3 downto 0)); -- operating mode for alu
 end alu_ctrl;
