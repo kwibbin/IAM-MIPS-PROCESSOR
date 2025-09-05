@@ -24,8 +24,8 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity decode is
     generic (
-        data_width    : positive := 32;
-        addr_width    : positive := 16
+        data_width : positive := 32;
+        addr_width : positive := 16
     );
     port (
         clk           : in std_logic;
