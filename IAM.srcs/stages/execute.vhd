@@ -24,9 +24,9 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity execute is
     generic (
-        mux_n         : positive := 2;
-        data_width    : positive := 32;
-        reg_i_width   : positive := 5
+        mux_n          : positive := 2;
+        data_width     : positive := 32;
+        reg_i_width    : positive := 5
     );
     port (
         clk            : in std_logic;
