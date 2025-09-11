@@ -57,11 +57,7 @@ begin
 
 process(branch, jump)
 begin
-    if branch = '1' or jump = '1' then
-        mux_sel <= 1;
-    else
-        mux_sel <= 0;
-    end if;
+    mux_sel <= 1 when branch = '1' or jump = '1' else 0;
 end process;
 
 mux_packed_d <= branch_j_addr & pc_p4_in;

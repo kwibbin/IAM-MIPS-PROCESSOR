@@ -66,19 +66,11 @@ begin
 
 process(ctrl_flags_in)
 begin
-    if ctrl_flags_in(0) = '1' then   -- reg_dst
-        w_reg_mux_sel <= 1;
-    else
-        w_reg_mux_sel <= 0;
-    end if;
-    if ctrl_flags_in(10) = '1' then -- alu_src
-        alu_mux_sel <= 1;
-    else
-        alu_mux_sel <= 0;
-    end if;
+    w_reg_mux_sel <= 1 when ctrl_flags_in(0) = '1' else 0; -- reg_dst
+    alu_mux_sel <= 1 when ctrl_flags_in(10) = '1' else 0; -- alu_src
 end process;
 
-alu_mux_d       <= branch_offset & reg_d_2; -- branch_off 63:32. reg_d_2 31:0
+alu_mux_d   <= branch_offset & reg_d_2; -- branch_off 63:32. reg_d_2 31:0
 w_reg_mux_d <= instr_20_0(20 downto 16) & instr_20_0(15 downto 11); -- rt 9:5 rd 4:0
 
 execute_adder : entity work.adder(Behavioral)

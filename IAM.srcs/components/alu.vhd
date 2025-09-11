@@ -68,42 +68,22 @@ begin
                 d <= std_logic_vector(shift_right(signed(in_d1), to_integer(signed(in_d2))));
 
             when "1001" =>      -- Branch if not equal (bneq)
-                if (in_d1 /= in_d2) then
-                    d <= (others => '0');
-                else
-                    d <= (others => '1');   -- result doesn't matter, just can't be 0
-                end if;
+                d <= (others => '0') when in_d1 /= in_d2 else (others => '1');
 
             when "1010" =>      -- beqz, lw, sw, lh, sh
                 d <= in_d1;
 
             when "1011" =>      -- Branch if < 0
-                if (signed(in_d1) < signed(zero_c)) then
-                    d <= (others => '0');
-                else
-                    d <= (others => '1');  -- result doesn't matter, just can't be 0
-                end if;
+                d <= (others => '0') when signed(in_d1) < signed(zero_c) else (others => '1');
 
             when "1100" =>      -- Branch if > 0
-                if (signed(in_d1) > signed(zero_c)) then
-                    d <= (others => '0');
-                else
-                    d <= (others => '1');  -- result doesn't matter, just can't be 0
-                end if;
+                d <= (others => '0') when signed(in_d1) > signed(zero_c) else (others => '1');
 
             when "1101" =>      -- Branch if 1 < 2
-                if (signed(in_d1) < signed(in_d2)) then
-                    d <= (others => '0');
-                else
-                    d <= (others => '1');  -- result doesn't matter, just can't be 0
-                end if;
+                d <= (others => '0') when signed(in_d1) < signed(in_d2) else (others => '1');
 
             when "1110" =>      -- Branch if 1 > 2
-                if (signed(in_d1) > signed(in_d2)) then
-                    d <= (others => '0');
-                else
-                    d <= (others => '1');  -- result doesn't matter, just can't be 0
-                end if;
+                d <= (others => '0') when signed(in_d1) > signed(in_d2) else (others => '1');
 
             when others =>
                 NULL;

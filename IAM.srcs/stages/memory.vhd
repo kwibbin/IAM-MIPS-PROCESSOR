@@ -64,16 +64,8 @@ begin
 
 process(alu_z, ctrl_flags_in(3), ctrl_flags_in(4))
 begin
-    if alu_z = '1' and ctrl_flags_in(4) = '1' then --branch 4
-        resolved_branch <= 1;
-    else
-        resolved_branch <= 0;
-    end if;
-    if ctrl_flags_in(3) = '1' then --jump 3
-        resolved_jump <= 1;
-    else
-        resolved_jump <= 0;
-    end if;
+    resolved_branch <= 1 when alu_z = '1' and ctrl_flags_in(4) = '1' else 0; -- branch 4
+    resolved_jump <= 1 when ctrl_flags_in(3) = '1' else 0; --jump 3
 end process;
 
 pc_branch_packed <= branch_addr & pc;

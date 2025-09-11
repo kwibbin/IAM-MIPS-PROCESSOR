@@ -39,11 +39,7 @@ begin
 
 process(rst, pc_in)
 begin
-    if rst = '1' then
-        pc_out <= (others => '0');
-    else
-        pc_out <= pc_in;
-    end if;
+    pc_out <= pc_in when rst /= '1' else (others => '0');
 end process;
 
 end Behavioral;
