@@ -62,7 +62,7 @@ signal branch_en        : std_logic;
 
 begin
 
-process(alu_z, ctrl_flags_in(4))
+process(alu_z, ctrl_flags_in(3), ctrl_flags_in(4))
 begin
     if alu_z = '1' and ctrl_flags_in(4) = '1' then --branch 4
         resolved_branch <= 1;
