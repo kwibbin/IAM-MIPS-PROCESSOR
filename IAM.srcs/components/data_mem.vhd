@@ -49,7 +49,7 @@ signal r_d_buff : std_logic_vector(31 downto 0);
 
 begin
 
-process(mem_w, mem_r)
+process(mem_w, mem_r, addr, w_d)
 begin
     if mem_w = '1' then
         memory(to_integer(unsigned(addr)))     <= w_d(31 downto 24);

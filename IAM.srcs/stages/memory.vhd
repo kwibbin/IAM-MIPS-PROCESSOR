@@ -36,13 +36,13 @@ entity memory is
         pc             : in std_logic_vector(data_width - 1 downto 0);
         branch_addr    : in std_logic_vector(data_width - 1 downto 0);
         jump_addr      : in std_logic_vector(data_width - 1 downto 0);
-        alu_in         : in std_logic_vector(data_width - 1 downto 0);
+        mem_alu_in     : in std_logic_vector(data_width - 1 downto 0);
         r_d_2          : in std_logic_vector(data_width - 1 downto 0);
         w_reg_in       : in std_logic_vector(reg_i_width - 1 downto 0);
 
-        ctrl_flags_out : out std_logic_vector(2 downto 0);
+        ctrl_flags_out : out std_logic_vector(3 downto 0);
         mem_r_d        : out std_logic_vector(data_width - 1 downto 0);
-        alu_out        : out std_logic_vector(data_width - 1 downto 0);
+        mem_alu_out    : out std_logic_vector(data_width - 1 downto 0);
         return_addr    : out std_logic_vector(data_width - 1 downto 0);
         w_reg_out      : out std_logic_vector(reg_i_width - 1 downto 0)
 
@@ -108,12 +108,14 @@ data_mem : entity work.data_memory(Behavioral)
     port map(
         mem_w => ctrl_flags_in(1),
         mem_r => ctrl_flags_in(5),
-        addr  => alu_in,
+        addr  => mem_alu_in,
         w_d   => r_d_2,
         r_d   => mem_r_d
     );
 branch_en <= '1' when alu_z = '1' and ctrl_flags_in(4) = '1' else '0';
 
+w_reg_out      <= w_reg_in;
+mem_alu_out    <= mem_alu_in;
 ctrl_flags_out <= ctrl_flags_in(3)  -- jump 3
                 & ctrl_flags_in(2)  -- mem_to_reg 2
                 & branch_en         -- branch_en 1
