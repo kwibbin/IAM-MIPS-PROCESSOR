@@ -32,8 +32,8 @@ entity decode is
         rst           : in std_logic;
 
         reg_w         : in std_logic;  -- ctrl unit flag from wb
-        write_reg     : in std_logic_vector(4 downto 0); -- either instr[20:16] or instr[15:11] from wb
-        write_d       : in std_logic_vector(data_width - 1 downto 0);
+        w_reg         : in std_logic_vector(4 downto 0); -- either instr[20:16] or instr[15:11] from wb
+        w_d           : in std_logic_vector(data_width - 1 downto 0);
         pc_in         : in std_logic_vector(data_width - 1 downto 0);
         pc_p4_in      : in std_logic_vector(data_width - 1 downto 0);
         instr         : in std_logic_vector(data_width - 1 downto 0);
@@ -49,8 +49,6 @@ entity decode is
 end decode;
 
 architecture Behavioral of decode is
-
-
 
 begin
 
@@ -71,14 +69,14 @@ ctrl_unit : entity work.ctrl_unit(Behavioral)
 
 reg_file : entity work.reg_mem(Behavioral)
     port map(
-        reg_wr    => reg_w,
-        read_reg1 => instr(25 downto 21),
-        read_reg2 => instr(20 downto 16),
-        write_reg => write_reg,
-        write_d   => write_d,
+        reg_w     => reg_w,
+        r_reg1    => instr(25 downto 21),
+        r_reg2    => instr(20 downto 16),
+        w_reg     => w_reg,
+        w_d       => w_d,
 
-        read_d1   => reg_d_1,
-        read_d2   => reg_d_2
+        r_d1      => reg_d_1,
+        r_d2      => reg_d_2
     );
 
 pc_out        <= pc_in;

@@ -48,10 +48,10 @@ end fetch;
 architecture Behavioral of fetch is
 
 
-signal mux_sel : natural range 0 to mux_n - 1;
+signal mux_sel      : natural range 0 to mux_n - 1;
 signal mux_packed_d : std_logic_vector(addr_width * mux_n - 1 downto 0);
-signal mux_out : std_logic_vector(addr_width - 1 downto 0);
-signal pc_s    : std_logic_vector(addr_width - 1 downto 0);
+signal mux_out      : std_logic_vector(addr_width - 1 downto 0);
+signal pc_s         : std_logic_vector(addr_width - 1 downto 0);
 
 begin
 
@@ -68,12 +68,12 @@ mux_packed_d <= branch_j_addr & pc_p4_in;
 
 fetch_mux : entity work.mux(Behavioral)
     generic map (
-        in_n => mux_n,
+        in_n      => mux_n,
         out_width => addr_width
     )
     port map (
-        sel => mux_sel,
-        in_d => mux_packed_d,
+        sel   => mux_sel,
+        in_d  => mux_packed_d,
         out_d => mux_out
     );
 
@@ -83,8 +83,8 @@ fetch_pc : entity work.pc(Behavioral)
     )
     port map (
         -- clk => clk,
-        rst => rst,
-        pc_in => mux_out,
+        rst    => rst,
+        pc_in  => mux_out,
         pc_out => pc_s
     );
 
@@ -95,7 +95,7 @@ fetch_instr_mem : entity work.instruction_mem(Behavioral)
     )
     port map (
         -- clk => clk,
-        pc => pc_s,
+        pc    => pc_s,
         instr => instr
     );
 
