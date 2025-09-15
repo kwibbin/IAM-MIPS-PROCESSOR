@@ -28,8 +28,8 @@ entity ex_mem is
     );
     port (
         -- generic
-        clk                  : std_logic;
-        rst                  : std_logic;
+        clk               : std_logic;
+        rst               : std_logic;
 
         --execute
         alu_z_ex          : in std_logic;
