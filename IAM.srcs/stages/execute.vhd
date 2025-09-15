@@ -24,35 +24,36 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity execute is
     generic (
-        mux_n          : positive := 2;
-        data_width     : positive := 32;
-        reg_i_width    : positive := 5
+        mux_n             : positive := 2;
+        reg_i_width       : positive := 5;
+        addr_width        : positive := 16;
+        data_width        : positive := 32
     );
     port (
-        clk            : in std_logic;
-        rst            : in std_logic;
+        clk               : in std_logic;
+        rst               : in std_logic;
 
-        ctrl_flags_in  : in std_logic_vector(11 downto 0);
-        instr_20_0     : in std_logic_vector(20 downto 0);
-        pc_in          : in std_logic_vector(data_width - 1 downto 0);
-        reg_d_1        : in std_logic_vector(data_width - 1 downto 0);
-        reg_d_2        : in std_logic_vector(data_width - 1 downto 0);
-        branch_offset  : in std_logic_vector(data_width - 1 downto 0);
+        ctrl_flags_in     : in std_logic_vector(11 downto 0);
+        instr_20_0        : in std_logic_vector(20 downto 0);
+        pc_in             : in std_logic_vector(addr_width - 1 downto 0);
+        reg_d_1           : in std_logic_vector(data_width - 1 downto 0);
+        reg_d_2           : in std_logic_vector(data_width - 1 downto 0);
+        jump_branch_addr  : in std_logic_vector(addr_width - 1 downto 0);
 
-        alu_z          : out std_logic;
-        ctrl_flags_out : out std_logic_vector(5 downto 0);
-        w_reg          : out std_logic_vector(reg_i_width - 1 downto 0);
-        branch_addr    : out std_logic_vector(data_width - 1 downto 0);
-        jump_addr      : out std_logic_vector(data_width - 1 downto 0);
-        pc_out         : out std_logic_vector(data_width - 1 downto 0);
-        alu_out        : out std_logic_vector(data_width - 1 downto 0);
-        r_d_2          : out std_logic_vector(data_width - 1 downto 0)
+        alu_z             : out std_logic;
+        ctrl_flags_out    : out std_logic_vector(5 downto 0);
+        branch_addr       : out std_logic_vector(addr_width - 1 downto 0);
+        jump_addr         : out std_logic_vector(addr_width - 1 downto 0);
+        pc_out            : out std_logic_vector(addr_width - 1 downto 0);
+        alu_out           : out std_logic_vector(data_width - 1 downto 0);
+        r_d_2             : out std_logic_vector(data_width - 1 downto 0);
+        w_reg             : out std_logic_vector(reg_i_width - 1 downto 0)
     );
 end execute;
 
 architecture Behavioral of execute is
 
-signal shifted_branch_offset : std_logic_vector(data_width - 1 downto 0);
+signal shft_jump_branch_addr : std_logic_vector(addr_width - 1 downto 0);
 
 signal alu_mux_d             : std_logic_vector(data_width * mux_n - 1 downto 0);
 signal alu_mux_sel           : natural range 0 to mux_n - 1;
@@ -70,7 +71,7 @@ begin
     alu_mux_sel <= 1 when ctrl_flags_in(10) = '1' else 0; -- alu_src
 end process;
 
-alu_mux_d   <= branch_offset & reg_d_2; -- branch_off 63:32. reg_d_2 31:0
+alu_mux_d   <= shft_jump_branch_addr & reg_d_2; -- branch_off 63:32. reg_d_2 31:0
 w_reg_mux_d <= instr_20_0(20 downto 16) & instr_20_0(15 downto 11); -- rt 9:5 rd 4:0
 
 execute_adder : entity work.adder(Behavioral)
@@ -79,7 +80,7 @@ execute_adder : entity work.adder(Behavioral)
     )
     port map (
         in_d1 => pc_in,
-        in_d2 => shifted_branch_offset,
+        in_d2 => shft_jump_branch_addr,
         out_d => branch_addr
     );
 
@@ -126,9 +127,8 @@ w_reg_mux : entity work.mux(Behavioral)
 
 pc_out <= pc_in;
 r_d_2 <= reg_d_2;
-shifted_branch_offset <= std_logic_vector(shift_left(unsigned(branch_offset), 2));
--- 15:0 << 2 and sign extended to data_width (32 bit by default) for 2nd alu in and/or branch addr
-jump_addr <= std_logic_vector(resize(shift_left(unsigned(instr_20_0(15 downto 0)), 2), data_width));
+jump_addr <= shft_jump_branch_addr;
+shft_jump_branch_addr <= std_logic_vector(shift_left(unsigned(jump_branch_addr), 2));
 
 -- pack necessary ctrl flags
 ctrl_flags_out <= ctrl_flags_in(3 downto 1) -- mem_r 5, branch 4, jump 3

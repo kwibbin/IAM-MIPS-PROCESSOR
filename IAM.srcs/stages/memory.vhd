@@ -24,8 +24,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity memory is
     generic (
         mux_n          : positive := 2;
-        data_width     : positive := 32;
-        reg_i_width    : positive := 5
+        reg_i_width    : positive := 5;
+        addr_width     : positive := 16;
+        data_width     : positive := 32
     );
     port (
         clk            : in std_logic;
@@ -33,7 +34,7 @@ entity memory is
 
         alu_z          : in std_logic;
         ctrl_flags_in  : in std_logic_vector(5 downto 0); -- mem_r 5, branch 4, jump 3, mem_to_reg 2, mem_w 1, reg_w 0
-        pc             : in std_logic_vector(data_width - 1 downto 0);
+        pc             : in std_logic_vector(addr_width - 1 downto 0);
         branch_addr    : in std_logic_vector(data_width - 1 downto 0);
         jump_addr      : in std_logic_vector(data_width - 1 downto 0);
         mem_alu_in     : in std_logic_vector(data_width - 1 downto 0);
@@ -43,7 +44,7 @@ entity memory is
         ctrl_flags_out : out std_logic_vector(3 downto 0);
         mem_r_d        : out std_logic_vector(data_width - 1 downto 0);
         mem_alu_out    : out std_logic_vector(data_width - 1 downto 0);
-        return_addr    : out std_logic_vector(data_width - 1 downto 0);
+        return_addr    : out std_logic_vector(addr_width - 1 downto 0);
         w_reg_out      : out std_logic_vector(reg_i_width - 1 downto 0)
 
     );

@@ -36,8 +36,8 @@ entity fetch is
         branch        : in std_logic;
         jump          : in std_logic;
 
-        pc_p4_in      : in std_logic_vector(data_width - 1 downto 0);
-        branch_j_addr : in std_logic_vector(data_width - 1 downto 0);
+        pc_p4_in      : in std_logic_vector(addr_width - 1 downto 0);
+        branch_j_addr : in std_logic_vector(addr_width - 1 downto 0);
 
         pc            : out std_logic_vector(addr_width - 1 downto 0);
         pc_p4_out     : out std_logic_vector(addr_width - 1 downto 0);
