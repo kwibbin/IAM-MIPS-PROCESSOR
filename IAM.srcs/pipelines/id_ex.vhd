@@ -46,7 +46,7 @@ entity id_ex is
         pc_ex                : out std_logic_vector(addr_width - 1 downto 0);
         reg_d_1_ex           : out std_logic_vector(data_width - 1 downto 0);
         reg_d_2_ex           : out std_logic_vector(data_width - 1 downto 0);
-        jump_branch_addr_ex  : out std_logic_vector(addr_width - 1 downto 0);
+        jump_branch_addr_ex  : out std_logic_vector(addr_width - 1 downto 0)
     );
 end id_ex;
 
