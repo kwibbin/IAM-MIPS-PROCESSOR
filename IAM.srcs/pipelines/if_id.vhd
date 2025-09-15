@@ -28,21 +28,21 @@ entity if_id is
         alignment    : std_logic_vector(3 downto 0) := "0100"
     );
     port (
-        -- generic sigs
+        -- generics
         clk      : std_logic;
         rst      : std_logic;
 
-        -- fetch sigs
+        -- fetch
         pc_ft    : in std_logic_vector(addr_width - 1 downto 0);
         pc_p4_ft : in std_logic_vector(addr_width - 1 downto 0);
         instr_ft : in std_logic_vector(addr_width - 1 downto 0);
 
-        -- write back sigs
+        -- write back
         reg_w_wb : in std_logic;
         w_reg_wb : in std_logic_vector(4 downto 0);
         w_d_wb   : in std_logic_vector(data_width - 1 downto 0);
 
-        -- decode sigs
+        -- decode
         reg_w_dc : out std_logic;
         w_reg_dc : out std_logic_vector(4 downto 0);
         w_d_dc   : out std_logic_vector(data_width - 1 downto 0);
