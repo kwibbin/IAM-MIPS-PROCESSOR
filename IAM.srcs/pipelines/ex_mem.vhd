@@ -22,9 +22,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity ex_mem is
     generic (
-        reg_i_width : positive := 5;
-        addr_width  : positive := 16;
-        data_width  : positive := 32
+        reg_i_width       : positive := 5;
+        addr_width        : positive := 16;
+        data_width        : positive := 32
     );
     port (
         clk               : in std_logic;
@@ -46,7 +46,7 @@ entity ex_mem is
         pc_mm             : out std_logic_vector(addr_width - 1 downto 0);
         branch_addr_mm    : out std_logic_vector(data_width - 1 downto 0);
         jump_addr_mm      : out std_logic_vector(data_width - 1 downto 0);
-        mem_alu_mm        : out std_logic_vector(data_width - 1 downto 0);
+        alu_mm            : out std_logic_vector(data_width - 1 downto 0);
         r_d_2_mm          : out std_logic_vector(data_width - 1 downto 0);
         w_reg_in_mm       : out std_logic_vector(reg_i_width - 1 downto 0)
     );
@@ -64,7 +64,7 @@ begin
         pc_mm          <= pc_ex;
         branch_addr_mm <= branch_addr_ex;
         jump_addr_mm   <= jump_addr_ex;
-        mem_alu_mm     <= alu_ex;
+        alu_mm         <= alu_ex;
         r_d_2_mm       <= r_d_2_ex;
         w_reg_in_mm    <= w_reg_ex;
     end if;

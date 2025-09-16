@@ -22,24 +22,24 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity if_id is
     generic (
-        mux_n        : positive := 2;
-        addr_width   : positive := 16;
-        data_width   : positive := 32;
-        alignment    : std_logic_vector(3 downto 0) := "0100"
+        mux_n      : positive := 2;
+        addr_width : positive := 16;
+        data_width : positive := 32;
+        alignment  : std_logic_vector(3 downto 0) := "0100"
     );
     port (
-        clk      : in std_logic;
-        rst      : in std_logic;
+        clk        : in std_logic;
+        rst        : in std_logic;
 
         -- fetch
-        pc_ft    : in std_logic_vector(addr_width - 1 downto 0);
-        pc_p4_ft : in std_logic_vector(addr_width - 1 downto 0);
-        instr_ft : in std_logic_vector(addr_width - 1 downto 0);
+        pc_if      : in std_logic_vector(addr_width - 1 downto 0);
+        pc_p4_if   : in std_logic_vector(addr_width - 1 downto 0);
+        instr_if   : in std_logic_vector(addr_width - 1 downto 0);
 
         -- decode
-        pc_id    : out std_logic_vector(data_width - 1 downto 0);
-        pc_p4_id : out std_logic_vector(data_width - 1 downto 0);
-        instr_id : out std_logic_vector(data_width - 1 downto 0)
+        pc_id      : out std_logic_vector(data_width - 1 downto 0);
+        pc_p4_id   : out std_logic_vector(data_width - 1 downto 0);
+        instr_id   : out std_logic_vector(data_width - 1 downto 0)
     );
 end if_id;
 
@@ -53,9 +53,9 @@ if_id_pipeline_reg : process(clk)
 begin
     if rising_edge(clk) then
         -- fetch -> decode
-        pc_id    <= pc_ft;
-        pc_p4_id <= pc_p4_ft;
-        instr_id <= instr_ft;
+        pc_id    <= pc_if;
+        pc_p4_id <= pc_p4_if;
+        instr_id <= instr_if;
     end if;
 end process if_id_pipeline_reg;
 

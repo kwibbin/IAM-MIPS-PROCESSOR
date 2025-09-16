@@ -22,21 +22,19 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity id_ex is
     generic (
-        mux_n      : positive := 2;
-        addr_width : positive := 16;
-        data_width : positive := 32;
-        alignment  : std_logic_vector(3 downto 0) := "0100"
+        mux_n               : positive := 2;
+        addr_width          : positive := 16;
+        data_width          : positive := 32;
+        alignment           : std_logic_vector(3 downto 0) := "0100"
     );
     port (
         clk                 : in std_logic;
         rst                 : in std_logic;
 
         -- decode
-        w_reg_id            : in std_logic_vector(4 downto 0);
         ctrl_flags_id       : in std_logic_vector(11 downto 0);
-        w_d_id              : in std_logic_vector(data_width - 1 downto 0);
         pc_id               : in std_logic_vector(data_width - 1 downto 0);
-        instr_id            : in std_logic_vector(data_width - 1 downto 0);
+        instr_20_0_id       : in std_logic_vector(data_width - 1 downto 0);
 
         -- execute
         ctrl_flags_ex       : out std_logic_vector(11 downto 0);
@@ -56,11 +54,11 @@ id_ex_pipeline_reg : process(clk)
 begin
     if rising_edge(clk) then
         ctrl_flags_ex       <= ctrl_flags_id;
-        instr_20_0_ex       <= instr_id(20 downto 0);
+        instr_20_0_ex       <= instr_20_0_id(20 downto 0);
         pc_ex               <= pc_id;
-        reg_d_1_ex          <= instr_id(25 downto 21);
-        reg_d_2_ex          <= instr_id(20 downto 16);
-        jump_branch_addr_ex <= instr_id(15 downto 0);
+        reg_d_1_ex          <= instr_20_0_id(25 downto 21);
+        reg_d_2_ex          <= instr_20_0_id(20 downto 16);
+        jump_branch_addr_ex <= instr_20_0_id(15 downto 0);
     end if;
 end process id_ex_pipeline_reg;
 

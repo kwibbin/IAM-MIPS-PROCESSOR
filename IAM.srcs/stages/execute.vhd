@@ -62,7 +62,7 @@ signal alu_mux_sel           : natural range 0 to mux_n - 1;
 signal w_reg_mux_d           : std_logic_vector(reg_i_width * mux_n - 1 downto 0);
 signal w_reg_mux_sel         : natural range 0 to mux_n - 1;
 
-signal alu_d_2              : std_logic_vector(data_width - 1 downto 0);
+signal alu_d_2               : std_logic_vector(data_width - 1 downto 0);
 signal alu_ctrl              : std_logic_vector(3 downto 0);
 
 begin

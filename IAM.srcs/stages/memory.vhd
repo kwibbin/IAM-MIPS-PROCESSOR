@@ -42,7 +42,9 @@ entity memory is
         r_d_2_ex       : in std_logic_vector(data_width - 1 downto 0);
         w_reg_ex       : in std_logic_vector(reg_i_width - 1 downto 0);
 
-        -- branch/j address | to if
+        -- ctrl_unit branch/j flags, branch/j address | to if
+        branch_mm      : out std_logic;
+        jump_mm        : out std_logic;
         return_addr_mm : out std_logic_vector(addr_width - 1 downto 0);
 
         -- mem r data, alu computation, w reg
@@ -52,7 +54,6 @@ entity memory is
 
         -- ctrl_unit flags | 2 & 0 to wb | 3 & 1 to if
         ctrl_flags_mm  : out std_logic_vector(3 downto 0)
-
     );
 end memory;
 
@@ -117,7 +118,9 @@ data_mem : entity work.data_memory(Behavioral)
 
 w_reg_mm      <= w_reg_ex;
 alu_mm        <= alu_ex;
-branch_en <= '1' when alu_z_ex = '1' and ctrl_flags_ex(4) = '1' else '0';
+branch_en     <= '1' when alu_z_ex = '1' and ctrl_flags_ex(4) = '1' else '0';
+branch_mm     <= ctrl_flags_ex(1);
+jump_mm       <= ctrl_flags_ex(3);
 ctrl_flags_mm <= ctrl_flags_ex(3)  -- jump 3
                 & ctrl_flags_ex(2)  -- mem_to_reg 2
                 & branch_en         -- branch_en 1

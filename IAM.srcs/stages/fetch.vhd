@@ -33,11 +33,9 @@ entity fetch is
         clk              : in std_logic;
         rst              : in std_logic;
 
-        -- ctrl unit flags | from wb
-        branch_wb        : in std_logic;
-        jump_wb          : in std_logic;
-
-        -- branch/jump/pc addr | from mem
+        -- ctrl unit branch/j flags, branch/jump/pc addr | from mem
+        branch_mm        : in std_logic;
+        jump_mm          : in std_logic;
         branch_j_addr_mm : in std_logic_vector(addr_width - 1 downto 0);
 
         -- pc + 4 | from id
@@ -60,9 +58,9 @@ signal pc_s         : std_logic_vector(addr_width - 1 downto 0);
 
 begin
 
-process(branch_wb, jump_wb)
+process(branch_mm, jump_mm)
 begin
-    mux_sel <= 1 when branch_wb = '1' or jump_wb = '1' else 0;
+    mux_sel <= 1 when branch_mm = '1' or jump_mm = '1' else 0;
 end process;
 
 mux_packed_d <= branch_j_addr_mm & pc_p4_id;

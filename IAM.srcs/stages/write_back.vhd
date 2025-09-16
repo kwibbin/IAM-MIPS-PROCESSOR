@@ -23,13 +23,13 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity write_back is
     generic (
-        mux_n          : positive := 2;
-        reg_i_width    : positive := 5;
-        data_width     : positive := 32
+        mux_n         : positive := 2;
+        reg_i_width   : positive := 5;
+        data_width    : positive := 32
     );
     port (
-        clk            : in std_logic;
-        rst            : in std_logic;
+        clk           : in std_logic;
+        rst           : in std_logic;
 
         -- ctrl_unit flags, mem r data, alu computation, w reg | from mem
         ctrl_flags_mm : in std_logic_vector(1 downto 0); -- mem_to_reg 1, reg_w 0
