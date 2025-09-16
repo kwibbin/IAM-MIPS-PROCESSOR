@@ -32,20 +32,26 @@ entity memory is
         clk            : in std_logic;
         rst            : in std_logic;
 
-        alu_z          : in std_logic;
-        ctrl_flags_in  : in std_logic_vector(5 downto 0); -- mem_r 5, branch 4, jump 3, mem_to_reg 2, mem_w 1, reg_w 0
-        pc             : in std_logic_vector(addr_width - 1 downto 0);
-        branch_addr    : in std_logic_vector(data_width - 1 downto 0);
-        jump_addr      : in std_logic_vector(data_width - 1 downto 0);
-        mem_alu_in     : in std_logic_vector(data_width - 1 downto 0);
-        r_d_2          : in std_logic_vector(data_width - 1 downto 0);
-        w_reg_in       : in std_logic_vector(reg_i_width - 1 downto 0);
+        -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu computation, reg data 2, w reg | from ex
+        alu_z_ex       : in std_logic;
+        ctrl_flags_ex  : in std_logic_vector(5 downto 0); -- mem_r 5, branch 4, jump 3, mem_to_reg 2, mem_w 1, reg_w 0
+        branch_addr_ex : in std_logic_vector(data_width - 1 downto 0);
+        jump_addr_ex   : in std_logic_vector(data_width - 1 downto 0);
+        pc_ex          : in std_logic_vector(addr_width - 1 downto 0);
+        alu_ex         : in std_logic_vector(data_width - 1 downto 0);
+        r_d_2_ex       : in std_logic_vector(data_width - 1 downto 0);
+        w_reg_ex       : in std_logic_vector(reg_i_width - 1 downto 0);
 
-        ctrl_flags_out : out std_logic_vector(3 downto 0);
-        mem_r_d        : out std_logic_vector(data_width - 1 downto 0);
-        mem_alu_out    : out std_logic_vector(data_width - 1 downto 0);
-        return_addr    : out std_logic_vector(addr_width - 1 downto 0);
-        w_reg_out      : out std_logic_vector(reg_i_width - 1 downto 0)
+        -- branch/j address | to if
+        return_addr_mm : out std_logic_vector(addr_width - 1 downto 0);
+
+        -- mem r data, alu computation, w reg
+        mem_r_d_mm     : out std_logic_vector(data_width - 1 downto 0);
+        alu_mm         : out std_logic_vector(data_width - 1 downto 0);
+        w_reg_mm       : out std_logic_vector(reg_i_width - 1 downto 0);
+
+        -- ctrl_unit flags | 2 & 0 to wb | 3 & 1 to if
+        ctrl_flags_mm  : out std_logic_vector(3 downto 0)
 
     );
 end memory;
@@ -63,14 +69,14 @@ signal branch_en        : std_logic;
 
 begin
 
-process(alu_z, ctrl_flags_in(3), ctrl_flags_in(4))
+process(alu_z_ex, ctrl_flags_ex(3), ctrl_flags_ex(4))
 begin
-    resolved_branch <= 1 when alu_z = '1' and ctrl_flags_in(4) = '1' else 0; -- branch 4
-    resolved_jump <= 1 when ctrl_flags_in(3) = '1' else 0; --jump 3
+    resolved_branch <= 1 when alu_z_ex = '1' and ctrl_flags_ex(4) = '1' else 0; -- branch 4
+    resolved_jump <= 1 when ctrl_flags_ex(3) = '1' else 0; --jump 3
 end process;
 
-pc_branch_packed <= branch_addr & pc;
-mux1_jump_packed <= jump_addr & pc_branch_addr;
+pc_branch_packed <= branch_addr_ex & pc_ex;
+mux1_jump_packed <= jump_addr_ex & pc_branch_addr;
 
 branch_mux : entity work.mux(Behavioral)
     generic map (
@@ -80,6 +86,7 @@ branch_mux : entity work.mux(Behavioral)
     port map (
         sel   => resolved_branch,
         in_d  => pc_branch_packed,
+
         out_d => pc_branch_addr
     );
 
@@ -91,7 +98,8 @@ jump_mux : entity work.mux(Behavioral)
     port map (
         sel   => resolved_jump,
         in_d  => mux1_jump_packed,
-        out_d => return_addr
+
+        out_d => return_addr_mm
     );
 
 data_mem : entity work.data_memory(Behavioral)
@@ -99,19 +107,20 @@ data_mem : entity work.data_memory(Behavioral)
         data_width => data_width
     )
     port map(
-        mem_w => ctrl_flags_in(1),
-        mem_r => ctrl_flags_in(5),
-        addr  => mem_alu_in,
-        w_d   => r_d_2,
-        r_d   => mem_r_d
-    );
-branch_en <= '1' when alu_z = '1' and ctrl_flags_in(4) = '1' else '0';
+        mem_w => ctrl_flags_ex(1),
+        mem_r => ctrl_flags_ex(5),
+        addr  => alu_ex,
+        w_d   => r_d_2_ex,
 
-w_reg_out      <= w_reg_in;
-mem_alu_out    <= mem_alu_in;
-ctrl_flags_out <= ctrl_flags_in(3)  -- jump 3
-                & ctrl_flags_in(2)  -- mem_to_reg 2
+        r_d   => mem_r_d_mm
+    );
+
+w_reg_mm      <= w_reg_ex;
+alu_mm        <= alu_ex;
+branch_en <= '1' when alu_z_ex = '1' and ctrl_flags_ex(4) = '1' else '0';
+ctrl_flags_mm <= ctrl_flags_ex(3)  -- jump 3
+                & ctrl_flags_ex(2)  -- mem_to_reg 2
                 & branch_en         -- branch_en 1
-                & ctrl_flags_in(0); -- reg_w 0
+                & ctrl_flags_ex(0); -- reg_w 0
 
 end Behavioral;

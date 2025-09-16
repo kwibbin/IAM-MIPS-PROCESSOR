@@ -27,9 +27,8 @@ entity ex_mem is
         data_width  : positive := 32
     );
     port (
-        -- generic
-        clk               : std_logic;
-        rst               : std_logic;
+        clk               : in std_logic;
+        rst               : in std_logic;
 
         --execute
         alu_z_ex          : in std_logic;

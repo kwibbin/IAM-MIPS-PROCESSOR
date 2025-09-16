@@ -27,9 +27,8 @@ entity mem_wb is
             data_width  : positive := 32
         );
     port (
-        -- generic
-        clk               : std_logic;
-        rst               : std_logic;
+        clk            : in std_logic;
+        rst            : in std_logic;
 
         -- mem
         ctrl_flags_mm  : in std_logic_vector(3 downto 0);
