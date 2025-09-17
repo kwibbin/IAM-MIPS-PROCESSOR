@@ -73,12 +73,12 @@ begin
     alu_mux_sel <= 1 when ctrl_flags_id(10) = '1' else 0; -- alu_src
 end process;
 
-alu_mux_d   <= shft_jump_branch_addr & reg_d_2_id; -- branch_off 63:32. reg_d_2 31:0
+alu_mux_d   <= std_logic_vector(resize(unsigned(shft_jump_branch_addr), data_width)) & reg_d_2_id; -- branch offset 63:32. reg_d_2 31:0
 w_reg_mux_d <= instr_20_0_id(20 downto 16) & instr_20_0_id(15 downto 11); -- rt 9:5 rd 4:0
 
 execute_adder : entity work.adder(Behavioral)
     generic map(
-        out_width => data_width
+        out_width => addr_width
     )
     port map (
         in_d1 => pc_id,

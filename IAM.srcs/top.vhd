@@ -44,8 +44,8 @@ signal instr_if               : std_logic_vector(data_width - 1 downto 0);
 
 -- if_id sigs -----------------------------------------------------------------
 -- decode
-signal pc_if_id               : std_logic_vector(data_width - 1 downto 0);
-signal pc_p4_if_id            : std_logic_vector(data_width - 1 downto 0);
+signal pc_if_id               : std_logic_vector(addr_width - 1 downto 0);
+signal pc_p4_if_id            : std_logic_vector(addr_width - 1 downto 0);
 signal instr_if_id            : std_logic_vector(data_width - 1 downto 0);
 
 -- decode sigs ----------------------------------------------------------------
@@ -84,8 +84,8 @@ signal w_reg_ex               : std_logic_vector(reg_i_width - 1 downto 0);
 signal alu_z_ex_mm            : std_logic;
 signal ctrl_flags_ex_mm       : std_logic_vector(5 downto 0); -- mem_r 5, branch 4, jump 3, mem_to_reg 2, mem_w 1, reg_w 0
 signal pc_ex_mm               : std_logic_vector(addr_width - 1 downto 0);
-signal branch_addr_ex_mm      : std_logic_vector(data_width - 1 downto 0);
-signal jump_addr_ex_mm        : std_logic_vector(data_width - 1 downto 0);
+signal branch_addr_ex_mm      : std_logic_vector(addr_width - 1 downto 0);
+signal jump_addr_ex_mm        : std_logic_vector(addr_width - 1 downto 0);
 signal alu_ex_mm              : std_logic_vector(data_width - 1 downto 0);
 signal r_d_2_ex_mm            : std_logic_vector(data_width - 1 downto 0);
 signal w_reg_ex_mm            : std_logic_vector(reg_i_width - 1 downto 0);
@@ -212,6 +212,8 @@ id_ex_reg : entity work.id_ex(Behavioral)
         -- ctrl_unit flags, instr[20:0], pc, reg_d_1/2, branch/j addr | from id
         ctrl_flags_id       => ctrl_flags_id,
         pc_id               => pc_id,
+        reg_d_1_id          => reg_d_1_id,
+        reg_d_2_id          => reg_d_2_id,
         instr_20_0_id       => instr_20_0_id,
 
         -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu computation, reg data 2, w reg | to mem
@@ -293,8 +295,8 @@ memory : entity work.memory(Behavioral)
         mux_n, reg_i_width, addr_width, data_width
     )
     port map (
-        clk           => clk,
-        rst           => rst,
+        clk            => clk,
+        rst            => rst,
 
         -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu computation, reg data 2, w reg | from ex
         alu_z_ex       => alu_z_ex_mm,

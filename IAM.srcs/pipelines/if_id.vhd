@@ -34,11 +34,11 @@ entity if_id is
         -- fetch
         pc_if      : in std_logic_vector(addr_width - 1 downto 0);
         pc_p4_if   : in std_logic_vector(addr_width - 1 downto 0);
-        instr_if   : in std_logic_vector(addr_width - 1 downto 0);
+        instr_if   : in std_logic_vector(data_width - 1 downto 0);
 
         -- decode
-        pc_id      : out std_logic_vector(data_width - 1 downto 0);
-        pc_p4_id   : out std_logic_vector(data_width - 1 downto 0);
+        pc_id      : out std_logic_vector(addr_width - 1 downto 0);
+        pc_p4_id   : out std_logic_vector(addr_width - 1 downto 0);
         instr_id   : out std_logic_vector(data_width - 1 downto 0)
     );
 end if_id;

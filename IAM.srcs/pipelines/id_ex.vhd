@@ -33,15 +33,17 @@ entity id_ex is
 
         -- decode
         ctrl_flags_id       : in std_logic_vector(11 downto 0);
-        pc_id               : in std_logic_vector(data_width - 1 downto 0);
-        instr_20_0_id       : in std_logic_vector(data_width - 1 downto 0);
+        instr_20_0_id       : in std_logic_vector(20 downto 0);
+        reg_d_1_id          : out std_logic_vector(data_width - 1 downto 0);
+        reg_d_2_id          : out std_logic_vector(data_width - 1 downto 0);
+        pc_id               : in std_logic_vector(addr_width - 1 downto 0);
 
         -- execute
         ctrl_flags_ex       : out std_logic_vector(11 downto 0);
         instr_20_0_ex       : out std_logic_vector(20 downto 0);
-        pc_ex               : out std_logic_vector(addr_width - 1 downto 0);
         reg_d_1_ex          : out std_logic_vector(data_width - 1 downto 0);
         reg_d_2_ex          : out std_logic_vector(data_width - 1 downto 0);
+        pc_ex               : out std_logic_vector(addr_width - 1 downto 0);
         jump_branch_addr_ex : out std_logic_vector(addr_width - 1 downto 0)
     );
 end id_ex;
@@ -56,8 +58,8 @@ begin
         ctrl_flags_ex       <= ctrl_flags_id;
         instr_20_0_ex       <= instr_20_0_id(20 downto 0);
         pc_ex               <= pc_id;
-        reg_d_1_ex          <= instr_20_0_id(25 downto 21);
-        reg_d_2_ex          <= instr_20_0_id(20 downto 16);
+        reg_d_1_ex          <= reg_d_1_id;
+        reg_d_2_ex          <= reg_d_2_id;
         jump_branch_addr_ex <= instr_20_0_id(15 downto 0);
     end if;
 end process id_ex_pipeline_reg;

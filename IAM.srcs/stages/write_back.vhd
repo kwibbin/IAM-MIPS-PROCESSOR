@@ -67,7 +67,7 @@ jump_mux : entity work.mux(Behavioral)
         sel   => resolved_wb_d, -- mem_to_reg
         in_d  => reg_d_packed,
 
-        out_d => w_reg_wb
+        out_d => w_d_wb
     );
 
 reg_w_wb <= ctrl_flags_mm(0);

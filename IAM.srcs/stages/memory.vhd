@@ -35,8 +35,8 @@ entity memory is
         -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu computation, reg data 2, w reg | from ex
         alu_z_ex       : in std_logic;
         ctrl_flags_ex  : in std_logic_vector(5 downto 0); -- mem_r 5, branch 4, jump 3, mem_to_reg 2, mem_w 1, reg_w 0
-        branch_addr_ex : in std_logic_vector(data_width - 1 downto 0);
-        jump_addr_ex   : in std_logic_vector(data_width - 1 downto 0);
+        branch_addr_ex : in std_logic_vector(addr_width - 1 downto 0);
+        jump_addr_ex   : in std_logic_vector(addr_width - 1 downto 0);
         pc_ex          : in std_logic_vector(addr_width - 1 downto 0);
         alu_ex         : in std_logic_vector(data_width - 1 downto 0);
         r_d_2_ex       : in std_logic_vector(data_width - 1 downto 0);
@@ -61,10 +61,10 @@ architecture Behavioral of memory is
 
 signal resolved_branch  : natural range 0 to mux_n - 1;
 signal resolved_jump    : natural range 0 to mux_n - 1;
-signal pc_branch_addr   : std_logic_vector(data_width - 1 downto 0);
+signal pc_branch_addr   : std_logic_vector(addr_width - 1 downto 0);
 
-signal pc_branch_packed : std_logic_vector(data_width * mux_n - 1 downto 0);
-signal mux1_jump_packed : std_logic_vector(data_width * mux_n - 1 downto 0);
+signal pc_branch_packed : std_logic_vector(addr_width * mux_n - 1 downto 0);
+signal mux1_jump_packed : std_logic_vector(addr_width * mux_n - 1 downto 0);
 
 signal branch_en        : std_logic;
 
@@ -82,7 +82,7 @@ mux1_jump_packed <= jump_addr_ex & pc_branch_addr;
 branch_mux : entity work.mux(Behavioral)
     generic map (
         in_n      => mux_n,
-        out_width => data_width
+        out_width => addr_width
     )
     port map (
         sel   => resolved_branch,
@@ -94,7 +94,7 @@ branch_mux : entity work.mux(Behavioral)
 jump_mux : entity work.mux(Behavioral)
     generic map (
         in_n      => mux_n,
-        out_width => data_width
+        out_width => addr_width
     )
     port map (
         sel   => resolved_jump,
@@ -110,7 +110,7 @@ data_mem : entity work.data_memory(Behavioral)
     port map(
         mem_w => ctrl_flags_ex(1),
         mem_r => ctrl_flags_ex(5),
-        addr  => alu_ex,
+        addr  => alu_ex(addr_width - 1 downto 0),
         w_d   => r_d_2_ex,
 
         r_d   => mem_r_d_mm

@@ -43,9 +43,9 @@ entity ex_mem is
         -- mem
         alu_z_mm          : out std_logic;
         ctrl_flags_mm     : out std_logic_vector(5 downto 0); -- mem_r 5, branch 4, jump 3, mem_to_reg 2, mem_w 1, reg_w 0
+        branch_addr_mm    : out std_logic_vector(addr_width - 1 downto 0);
+        jump_addr_mm      : out std_logic_vector(addr_width - 1 downto 0);
         pc_mm             : out std_logic_vector(addr_width - 1 downto 0);
-        branch_addr_mm    : out std_logic_vector(data_width - 1 downto 0);
-        jump_addr_mm      : out std_logic_vector(data_width - 1 downto 0);
         alu_mm            : out std_logic_vector(data_width - 1 downto 0);
         r_d_2_mm          : out std_logic_vector(data_width - 1 downto 0);
         w_reg_in_mm       : out std_logic_vector(reg_i_width - 1 downto 0)
