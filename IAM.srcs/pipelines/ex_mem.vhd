@@ -56,9 +56,19 @@ architecture Behavioral of ex_mem is
 
 begin
 
-ex_mem_pipeline_reg : process(clk)
+ex_mem_pipeline_reg : process(clk, rst)
 begin
-    if rising_edge(clk) then
+    if rst = '1' then
+        alu_z_mm       <= '0';
+        ctrl_flags_mm  <= (others => '0');
+        pc_mm          <= (others => '0');
+        branch_addr_mm <= (others => '0');
+        jump_addr_mm   <= (others => '0');
+        alu_mm         <= (others => '0');
+        r_d_2_mm       <= (others => '0');
+        w_reg_in_mm    <= (others => '0');
+
+    elsif rising_edge(clk) then
         alu_z_mm       <= alu_z_ex;
         ctrl_flags_mm  <= ctrl_flags_ex;
         pc_mm          <= pc_ex;
@@ -67,6 +77,7 @@ begin
         alu_mm         <= alu_ex;
         r_d_2_mm       <= r_d_2_ex;
         w_reg_in_mm    <= w_reg_ex;
+
     end if;
 end process ex_mem_pipeline_reg;
 

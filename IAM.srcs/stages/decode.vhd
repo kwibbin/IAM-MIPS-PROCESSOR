@@ -41,12 +41,14 @@ entity decode is
         pc_p4_if            : in std_logic_vector(addr_width - 1 downto 0);
         instr_if            : in std_logic_vector(data_width - 1 downto 0);
 
+        -- pc + 4 | to if
+        pc_p4_id            : out std_logic_vector(addr_width - 1 downto 0);
+
         -- w reg, ctrl_unit flags, instr[20:0], pc, pc + 4, reg data 1/2, jump/branch addr out | to ex
         w_reg_id            : out std_logic_vector(9 downto 0);
         ctrl_flags_id       : out std_logic_vector(11 downto 0);
         instr_20_0_id       : out std_logic_vector(20 downto 0);
         pc_id               : out std_logic_vector(addr_width - 1 downto 0);
-        pc_p4_id            : out std_logic_vector(addr_width - 1 downto 0);
         reg_d_1_id          : out std_logic_vector(data_width - 1 downto 0);
         reg_d_2_id          : out std_logic_vector(data_width - 1 downto 0);
         jump_branch_addr_id : out std_logic_vector(addr_width - 1 downto 0)
@@ -56,6 +58,25 @@ end decode;
 architecture Behavioral of decode is
 
 begin
+
+process(clk, rst)
+begin
+    if rst = '1' then
+        pc_id               <= (others => '0');
+        w_reg_id            <= (others => '0');
+        instr_20_0_id       <= (others => '0');
+        jump_branch_addr_id <= (others => '0');
+
+    elsif rising_edge(clk) then
+        pc_id               <= pc_if;
+        w_reg_id            <= instr_if(20 downto 11);
+        instr_20_0_id       <= instr_if(20 downto 0);
+        jump_branch_addr_id <= instr_if(addr_width - 1 downto 0);
+
+    end if;
+end process;
+
+pc_p4_id <= pc_p4_if;
 
 ctrl_unit : entity work.ctrl_unit(Behavioral)
     port map(
@@ -83,11 +104,5 @@ reg_file : entity work.reg_mem(Behavioral)
         r_d1      => reg_d_1_id,
         r_d2      => reg_d_2_id
     );
-
-pc_id               <= pc_if;
-pc_p4_id            <= pc_p4_if;
-w_reg_id            <= instr_if(20 downto 11);
-instr_20_0_id       <= instr_if(20 downto 0);
-jump_branch_addr_id <= instr_if(addr_width - 1 downto 0);
 
 end Behavioral;

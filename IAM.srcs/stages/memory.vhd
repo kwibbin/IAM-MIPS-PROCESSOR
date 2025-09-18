@@ -78,6 +78,25 @@ end process;
 
 pc_branch_packed <= branch_addr_ex & pc_ex;
 mux1_jump_packed <= jump_addr_ex & pc_branch_addr;
+branch_en        <= '1' when alu_z_ex = '1' and ctrl_flags_ex(4) = '1' else '0';
+
+process(clk, rst)
+begin
+    if rst = '1' then
+        ctrl_flags_mm <= (others => '0');
+
+    elsif rising_edge(clk) then
+        ctrl_flags_mm <= ctrl_flags_ex(3)  -- jump 3
+                       & ctrl_flags_ex(2)  -- mem_to_reg 2
+                       & branch_en         -- branch_en 1
+                       & ctrl_flags_ex(0); -- reg_w 0
+    end if;
+end process;
+
+branch_mm <= ctrl_flags_ex(1);
+jump_mm   <= ctrl_flags_ex(3);
+alu_mm    <= alu_ex;
+w_reg_mm  <= w_reg_ex;
 
 branch_mux : entity work.mux(Behavioral)
     generic map (
@@ -115,15 +134,5 @@ data_mem : entity work.data_memory(Behavioral)
 
         r_d   => mem_r_d_mm
     );
-
-w_reg_mm      <= w_reg_ex;
-alu_mm        <= alu_ex;
-branch_en     <= '1' when alu_z_ex = '1' and ctrl_flags_ex(4) = '1' else '0';
-branch_mm     <= ctrl_flags_ex(1);
-jump_mm       <= ctrl_flags_ex(3);
-ctrl_flags_mm <= ctrl_flags_ex(3)  -- jump 3
-                & ctrl_flags_ex(2)  -- mem_to_reg 2
-                & branch_en         -- branch_en 1
-                & ctrl_flags_ex(0); -- reg_w 0
 
 end Behavioral;

@@ -48,13 +48,20 @@ architecture Behavioral of mem_wb is
 
 begin
 
-mem_wb_pipeline_reg : process(clk)
+mem_wb_pipeline_reg : process(clk, rst)
 begin
-    if rising_edge(clk) then
+    if rst = '1' then
+        ctrl_flags_wb <= (others => '0');
+        mem_r_d_wb    <= (others => '0');
+        alu_wb        <= (others => '0');
+        w_reg_wb      <= (others => '0');
+
+    elsif rising_edge(clk) then
         ctrl_flags_wb <= ctrl_flags_mm(2) & ctrl_flags_mm(0);
         mem_r_d_wb    <= mem_r_d_mm;
         alu_wb        <= mem_alu_mm;
         w_reg_wb      <= w_reg_mm;
+
     end if;
 end process mem_wb_pipeline_reg;
 

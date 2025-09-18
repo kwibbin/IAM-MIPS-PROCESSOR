@@ -56,6 +56,9 @@ begin
     resolved_wb_d <= 1 when ctrl_flags_mm(1) = '1' else 0;
 end process;
 
+reg_w_wb <= ctrl_flags_mm(0);
+w_reg_wb <= w_reg_mm;
+
 reg_d_packed <= mem_r_d_mm & alu_mm;
 
 jump_mux : entity work.mux(Behavioral)
@@ -69,9 +72,5 @@ jump_mux : entity work.mux(Behavioral)
 
         out_d => w_d_wb
     );
-
-reg_w_wb <= ctrl_flags_mm(0);
-w_reg_wb <= w_reg_mm;
-
 
 end Behavioral;

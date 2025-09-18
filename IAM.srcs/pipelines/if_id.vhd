@@ -49,13 +49,18 @@ architecture Behavioral of if_id is
 
 begin
 
-if_id_pipeline_reg : process(clk)
+if_id_pipeline_reg : process(clk, rst)
 begin
-    if rising_edge(clk) then
-        -- fetch -> decode
+    if rst = '1' then
+        pc_id    <= (others => '0');
+        pc_p4_id <= (others => '0');
+        instr_id <= (others => '0');
+
+    elsif rising_edge(clk) then
         pc_id    <= pc_if;
         pc_p4_id <= pc_p4_if;
         instr_id <= instr_if;
+
     end if;
 end process if_id_pipeline_reg;
 

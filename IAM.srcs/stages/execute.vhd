@@ -73,8 +73,29 @@ begin
     alu_mux_sel <= 1 when ctrl_flags_id(10) = '1' else 0; -- alu_src
 end process;
 
-alu_mux_d   <= std_logic_vector(resize(unsigned(shft_jump_branch_addr), data_width)) & reg_d_2_id; -- branch offset 63:32. reg_d_2 31:0
+shft_jump_branch_addr <= std_logic_vector(shift_left(unsigned(jump_branch_addr_id), 2));
+alu_mux_d   <= std_logic_vector(resize(unsigned(jump_branch_addr_id), data_width)) & reg_d_2_id; -- branch offset 63:32. reg_d_2 31:0
 w_reg_mux_d <= instr_20_0_id(20 downto 16) & instr_20_0_id(15 downto 11); -- rt 9:5 rd 4:0
+
+process(clk, rst)
+begin
+    if rst = '1' then
+        pc_ex         <= (others => '0');
+        r_d_2_ex      <= (others => '0');
+        jump_addr_ex  <= (others => '0');
+        ctrl_flags_ex <= (others => '0');
+
+    elsif rising_edge(clk) then
+        pc_ex         <= pc_id;
+        r_d_2_ex      <= reg_d_2_id;
+        jump_addr_ex  <= shft_jump_branch_addr;
+        -- pack necessary ctrl flags
+        ctrl_flags_ex <= ctrl_flags_id(3 downto 1) -- mem_r 5, branch 4, jump 3
+                       & ctrl_flags_id(4) -- mem_to_reg 2
+                       & ctrl_flags_id(9) -- mem_w 1
+                       & ctrl_flags_id(11); -- reg_w 0
+    end if;
+end process;
 
 execute_adder : entity work.adder(Behavioral)
     generic map(
@@ -131,16 +152,5 @@ w_reg_mux : entity work.mux(Behavioral)
 
         out_d => w_reg_ex
     );
-
-pc_ex <= pc_id;
-r_d_2_ex <= reg_d_2_id;
-jump_addr_ex <= shft_jump_branch_addr;
-shft_jump_branch_addr <= std_logic_vector(shift_left(unsigned(jump_branch_addr_id), 2));
-
--- pack necessary ctrl flags
-ctrl_flags_ex <= ctrl_flags_id(3 downto 1) -- mem_r 5, branch 4, jump 3
-               & ctrl_flags_id(4) -- mem_to_reg 2
-               & ctrl_flags_id(9) -- mem_w 1
-               & ctrl_flags_id(11); -- reg_w 0
 
 end Behavioral;
