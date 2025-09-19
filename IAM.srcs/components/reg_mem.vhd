@@ -43,7 +43,7 @@ begin
 
 process(reg_w, w_d, w_reg)
 begin
-    if reg_w = '1' then
+    if reg_w = '1' and w_reg /= "00000" then -- protecting the $zero register
         reg_array(to_integer(unsigned(w_reg))) <= w_d;
     end if;
 end process;
