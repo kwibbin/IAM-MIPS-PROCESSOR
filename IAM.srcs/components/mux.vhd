@@ -28,6 +28,7 @@ entity mux is
     port (
         sel   : in natural range 0 to in_n - 1;
         in_d  : in std_logic_vector(in_n * out_width - 1 downto 0);
+
         out_d : out std_logic_vector(out_width - 1 downto 0)
     );
 end mux;

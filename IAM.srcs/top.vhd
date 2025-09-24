@@ -82,6 +82,8 @@ signal w_reg_ex               : std_logic_vector(reg_i_width - 1 downto 0);
 -- ex_mem sigs ----------------------------------------------------------------
 -- mem
 signal alu_z_ex_mm            : std_logic;
+signal mem_to_reg_mm          : std_logic;
+signal reg_w_mm               : std_logic;
 signal ctrl_flags_ex_mm       : std_logic_vector(5 downto 0); -- mem_r 5, branch 4, jump 3, mem_to_reg 2, mem_w 1, reg_w 0
 signal pc_ex_mm               : std_logic_vector(addr_width - 1 downto 0);
 signal branch_addr_ex_mm      : std_logic_vector(addr_width - 1 downto 0);
@@ -106,7 +108,8 @@ signal ctrl_flags_mm          : std_logic_vector(3 downto 0);
 
 -- mem_wb sigs ----------------------------------------------------------------
 -- write back
-signal ctrl_flags_mm_wb       : std_logic_vector(1 downto 0); -- mem_to_reg 1, reg_w 0
+signal mem_to_reg_mm_wb       : std_logic;
+signal reg_w_mm_wb            : std_logic;
 signal mem_r_d_mm_wb          : std_logic_vector(data_width - 1 downto 0);
 signal alu_mm_wb              : std_logic_vector(data_width - 1 downto 0);
 signal w_reg_mm_wb            : std_logic_vector(reg_i_width - 1 downto 0);
@@ -314,12 +317,11 @@ memory : entity work.memory(Behavioral)
         return_addr_mm => return_addr_mm,
 
         -- mem r data, alu computation, w reg
+        mem_to_reg_mm  => mem_to_reg_mm,
+        reg_w_mm       => reg_w_mm,
         mem_r_d_mm     => mem_r_d_mm,
         alu_mm         => mem_alu_mm,
-        w_reg_mm       => w_reg_mm,
-
-        -- ctrl_unit flags | 2 & 0 to wb | 3 & 1 to if
-        ctrl_flags_mm  => ctrl_flags_mm
+        w_reg_mm       => w_reg_mm
     );
 
 
@@ -334,16 +336,18 @@ mem_wb_reg : entity work.mem_wb(Behavioral)
         rst           => rst,
 
         -- mem
-        ctrl_flags_mm  => ctrl_flags_mm,
-        mem_r_d_mm     => mem_r_d_mm,
-        mem_alu_mm     => mem_alu_mm,
-        w_reg_mm       => w_reg_mm,
+        mem_to_reg_mm => mem_to_reg_mm,
+        reg_w_mm      => reg_w_mm,
+        mem_r_d_mm    => mem_r_d_mm,
+        mem_alu_mm    => mem_alu_mm,
+        w_reg_mm      => w_reg_mm,
 
         -- write back
-        ctrl_flags_wb  => ctrl_flags_mm_wb,-- mem_to_reg 1, reg_w 0
-        mem_r_d_wb     => mem_r_d_mm_wb,
-        alu_wb         => alu_mm_wb,
-        w_reg_wb       => w_reg_mm_wb
+        mem_to_reg_wb => mem_to_reg_mm_wb,
+        reg_w_wb      => reg_w_mm_wb,
+        mem_r_d_wb    => mem_r_d_mm_wb,
+        alu_wb        => alu_mm_wb,
+        w_reg_wb      => w_reg_mm_wb
     );
 
 
@@ -358,7 +362,8 @@ write_back : entity work.write_back(Behavioral)
         rst           => rst,
 
         -- ctrl_unit flags, mem r data, alu computation, w reg | from mem
-        ctrl_flags_mm => ctrl_flags_mm_wb, -- mem_to_reg 1, reg_w 0
+        mem_to_reg_mm => mem_to_reg_mm_wb,
+        reg_w_mm      => reg_w_mm_wb,
         mem_r_d_mm    => mem_r_d_mm_wb,
         alu_mm        => alu_mm_wb,
         w_reg_mm      => w_reg_mm_wb,

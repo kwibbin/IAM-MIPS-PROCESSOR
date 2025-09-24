@@ -54,22 +54,24 @@ begin
 
 id_ex_pipeline_reg : process(clk, rst)
 begin
-    if rst = '1' then
-        ctrl_flags_ex       <= (others => '0');
-        instr_20_0_ex       <= (others => '0');
-        pc_ex               <= (others => '0');
-        reg_d_1_ex          <= (others => '0');
-        reg_d_2_ex          <= (others => '0');
-        jump_branch_addr_ex <= (others => '0');
+    if rising_edge(clk) then
+        if rst = '1' then
+            ctrl_flags_ex       <= (others => '0');
+            instr_20_0_ex       <= (others => '0');
+            pc_ex               <= (others => '0');
+            reg_d_1_ex          <= (others => '0');
+            reg_d_2_ex          <= (others => '0');
+            jump_branch_addr_ex <= (others => '0');
 
-    elsif rising_edge(clk) then
-        ctrl_flags_ex       <= ctrl_flags_id;
-        instr_20_0_ex       <= instr_20_0_id(20 downto 0);
-        pc_ex               <= pc_id;
-        reg_d_1_ex          <= reg_d_1_id;
-        reg_d_2_ex          <= reg_d_2_id;
-        jump_branch_addr_ex <= instr_20_0_id(15 downto 0);
+        else
+            ctrl_flags_ex       <= ctrl_flags_id;
+            instr_20_0_ex       <= instr_20_0_id(20 downto 0);
+            pc_ex               <= pc_id;
+            reg_d_1_ex          <= reg_d_1_id;
+            reg_d_2_ex          <= reg_d_2_id;
+            jump_branch_addr_ex <= instr_20_0_id(15 downto 0);
 
+        end if;
     end if;
 end process id_ex_pipeline_reg;
 

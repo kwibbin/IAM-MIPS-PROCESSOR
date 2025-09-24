@@ -26,10 +26,12 @@ entity reg_mem is
         data_width : positive := 32
     );
     port (
+        -- from wb
         reg_w          : in std_logic;  -- flag from ctrl_unit
-        r_reg1, r_reg2 : in std_logic_vector(4 downto 0);   -- inst[25:21] & inst[20:16]
-        w_reg          : in std_logic_vector(4 downto 0);   -- from mem_wb pipeline reg
+        w_reg          : in std_logic_vector(4 downto 0);
         w_d            : in std_logic_vector(data_width - 1 downto 0);
+
+        r_reg1, r_reg2 : in std_logic_vector(4 downto 0);   -- inst[20:216] & inst[25:21]
 
         r_d1, r_d2     : out std_logic_vector(data_width - 1 downto 0));
 end reg_mem;

@@ -61,13 +61,7 @@ begin
 
 process(clk, rst)
 begin
-    if rst = '1' then
-        pc_id               <= (others => '0');
-        w_reg_id            <= (others => '0');
-        instr_20_0_id       <= (others => '0');
-        jump_branch_addr_id <= (others => '0');
-
-    elsif rising_edge(clk) then
+    if rising_edge(clk) then
         pc_id               <= pc_if;
         w_reg_id            <= instr_if(20 downto 11);
         instr_20_0_id       <= instr_if(20 downto 0);
@@ -76,11 +70,13 @@ begin
     end if;
 end process;
 
+-- to if
 pc_p4_id <= pc_p4_if;
 
 ctrl_unit : entity work.ctrl_unit(Behavioral)
     port map(
-        opcode     => instr_if(31 downto 26),
+        -- opcode     => instr_if(31 downto 26),
+        instr_if   => instr_if,
 
         reg_dst    => ctrl_flags_id(0),
         jump       => ctrl_flags_id(1),

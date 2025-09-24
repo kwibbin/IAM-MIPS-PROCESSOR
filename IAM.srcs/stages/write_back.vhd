@@ -31,8 +31,8 @@ entity write_back is
         clk           : in std_logic;
         rst           : in std_logic;
 
-        -- ctrl_unit flags, mem r data, alu computation, w reg | from mem
-        ctrl_flags_mm : in std_logic_vector(1 downto 0); -- mem_to_reg 1, reg_w 0
+        mem_to_reg_mm : in std_logic;
+        reg_w_mm      : in std_logic;
         mem_r_d_mm    : in std_logic_vector(data_width - 1 downto 0);
         alu_mm        : in std_logic_vector(data_width - 1 downto 0);
         w_reg_mm      : in std_logic_vector(reg_i_width - 1 downto 0);
@@ -51,12 +51,12 @@ signal reg_d_packed  : std_logic_vector(data_width * mux_n - 1 downto 0);
 
 begin
 
-process(ctrl_flags_mm(1))
+process(mem_to_reg_mm)
 begin
-    resolved_wb_d <= 1 when ctrl_flags_mm(1) = '1' else 0;
+    resolved_wb_d <= 1 when mem_to_reg_mm = '1' else 0;
 end process;
 
-reg_w_wb <= ctrl_flags_mm(0);
+reg_w_wb <= reg_w_mm;
 w_reg_wb <= w_reg_mm;
 
 reg_d_packed <= mem_r_d_mm & alu_mm;

@@ -47,13 +47,12 @@ entity memory is
         jump_mm        : out std_logic;
         return_addr_mm : out std_logic_vector(addr_width - 1 downto 0);
 
-        -- mem r data, alu computation, w reg
+        -- mem r data, alu computation, w reg | to wb
+        mem_to_reg_mm  : out std_logic;
+        reg_w_mm       : out std_logic;
         mem_r_d_mm     : out std_logic_vector(data_width - 1 downto 0);
         alu_mm         : out std_logic_vector(data_width - 1 downto 0);
-        w_reg_mm       : out std_logic_vector(reg_i_width - 1 downto 0);
-
-        -- ctrl_unit flags | 2 & 0 to wb | 3 & 1 to if
-        ctrl_flags_mm  : out std_logic_vector(3 downto 0)
+        w_reg_mm       : out std_logic_vector(reg_i_width - 1 downto 0)
     );
 end memory;
 
@@ -80,23 +79,19 @@ pc_branch_packed <= branch_addr_ex & pc_ex;
 mux1_jump_packed <= jump_addr_ex & pc_branch_addr;
 branch_en        <= '1' when alu_z_ex = '1' and ctrl_flags_ex(4) = '1' else '0';
 
-process(clk, rst)
+process(clk)
 begin
-    if rst = '1' then
-        ctrl_flags_mm <= (others => '0');
-
-    elsif rising_edge(clk) then
-        ctrl_flags_mm <= ctrl_flags_ex(3)  -- jump 3
-                       & ctrl_flags_ex(2)  -- mem_to_reg 2
-                       & branch_en         -- branch_en 1
-                       & ctrl_flags_ex(0); -- reg_w 0
+    if rising_edge(clk) then
+        alu_mm        <= alu_ex;
+        w_reg_mm      <= w_reg_ex;
+        mem_to_reg_mm <= ctrl_flags_ex(2);
+        reg_w_mm      <= ctrl_flags_ex(0);
     end if;
 end process;
 
+-- to if
 branch_mm <= ctrl_flags_ex(1);
 jump_mm   <= ctrl_flags_ex(3);
-alu_mm    <= alu_ex;
-w_reg_mm  <= w_reg_ex;
 
 branch_mux : entity work.mux(Behavioral)
     generic map (

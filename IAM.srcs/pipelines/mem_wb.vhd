@@ -31,12 +31,15 @@ entity mem_wb is
         rst            : in std_logic;
 
         -- mem
-        ctrl_flags_mm  : in std_logic_vector(3 downto 0);
+        mem_to_reg_mm  : in std_logic;
+        reg_w_mm       : in std_logic;
         mem_r_d_mm     : in std_logic_vector(data_width - 1 downto 0);
         mem_alu_mm     : in std_logic_vector(data_width - 1 downto 0);
         w_reg_mm       : in std_logic_vector(reg_i_width - 1 downto 0);
 
         -- write back
+        mem_to_reg_wb  : out std_logic;
+        reg_w_wb       : out std_logic;
         ctrl_flags_wb  : out std_logic_vector(1 downto 0); -- mem_to_reg 1, reg_w 0
         mem_r_d_wb     : out std_logic_vector(data_width - 1 downto 0);
         alu_wb         : out std_logic_vector(data_width - 1 downto 0);
@@ -50,18 +53,21 @@ begin
 
 mem_wb_pipeline_reg : process(clk, rst)
 begin
-    if rst = '1' then
-        ctrl_flags_wb <= (others => '0');
-        mem_r_d_wb    <= (others => '0');
-        alu_wb        <= (others => '0');
-        w_reg_wb      <= (others => '0');
+    if rising_edge(clk) then
+        if rst = '1' then
+            ctrl_flags_wb <= (others => '0');
+            mem_r_d_wb    <= (others => '0');
+            alu_wb        <= (others => '0');
+            w_reg_wb      <= (others => '0');
 
-    elsif rising_edge(clk) then
-        ctrl_flags_wb <= ctrl_flags_mm(2) & ctrl_flags_mm(0);
-        mem_r_d_wb    <= mem_r_d_mm;
-        alu_wb        <= mem_alu_mm;
-        w_reg_wb      <= w_reg_mm;
+        else
+            mem_to_reg_wb <= mem_to_reg_mm;
+            reg_w_wb      <= reg_w_mm;
+            mem_r_d_wb    <= mem_r_d_mm;
+            alu_wb        <= mem_alu_mm;
+            w_reg_wb      <= w_reg_mm;
 
+        end if;
     end if;
 end process mem_wb_pipeline_reg;
 
