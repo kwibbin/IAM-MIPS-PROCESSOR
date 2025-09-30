@@ -22,8 +22,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity ctrl_unit is
     port (
-        -- opcode     : in std_logic_vector(5 downto 0);
-        instr_if     : in std_logic_vector(31 downto 0);
+        -- opcode  : in std_logic_vector(5 downto 0);
+        instr_if   : in std_logic_vector(31 downto 0);
 
         reg_dst    : out std_logic;
         jump       : out std_logic;
@@ -41,7 +41,7 @@ architecture Behavioral of ctrl_unit is
 
 begin
 
-    process(instr_if) is
+    process(instr_if)
     begin
         if instr_if /= x"00000000" then -- skip NOPs, reserved for debugging
             case instr_if(31 downto 26) is
@@ -75,7 +75,7 @@ begin
                     mem_to_reg <= '0';
                     alu_op     <= "0010";
                     mem_w      <= '0';
-                    alu_src    <= '0';
+                    alu_src    <= '1';
                     reg_w      <= '0';
 
                     when "000011" => -- bneq
@@ -86,7 +86,7 @@ begin
                     mem_to_reg <= '0';
                     alu_op     <= "1001";
                     mem_w      <= '0';
-                    alu_src    <= '0';
+                    alu_src    <= '1';
                     reg_w      <= '0';
 
                     when "000100" => -- beqz
@@ -97,7 +97,7 @@ begin
                     mem_to_reg <= '0';
                     alu_op     <= "1010";
                     mem_w      <= '0';
-                    alu_src    <= '0';
+                    alu_src    <= '1';
                     reg_w      <= '0';
 
                     when "000101" => -- bltz
@@ -108,7 +108,7 @@ begin
                     mem_to_reg <= '0';
                     alu_op     <= "1011";
                     mem_w      <= '0';
-                    alu_src    <= '0';
+                    alu_src    <= '1';
                     reg_w      <= '0';
 
                     when "000110" => -- bgtz
@@ -119,7 +119,7 @@ begin
                     mem_to_reg <= '0';
                     alu_op     <= "1100";
                     mem_w      <= '0';
-                    alu_src    <= '0';
+                    alu_src    <= '1';
                     reg_w      <= '0';
 
                     when "000111" => -- blt
@@ -130,7 +130,7 @@ begin
                     mem_to_reg <= '0';
                     alu_op     <= "1101";
                     mem_w      <= '0';
-                    alu_src    <= '0';
+                    alu_src    <= '1';
                     reg_w      <= '0';
 
                     when "001000" => -- bgt
@@ -141,7 +141,7 @@ begin
                     mem_to_reg <= '0';
                     alu_op     <= "1110";
                     mem_w      <= '0';
-                    alu_src    <= '0';
+                    alu_src    <= '1';
                     reg_w      <= '0';
 
                     when "001001" => -- lw

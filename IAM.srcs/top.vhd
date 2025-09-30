@@ -52,7 +52,7 @@ signal instr_if_id            : std_logic_vector(data_width - 1 downto 0);
 -- w reg, ctrl_unit flags, instr[20:0], pc, pc + 4, reg data 1/2, jump/branch addr out | to ex
 signal w_reg_id               : std_logic_vector(9 downto 0);
 signal ctrl_flags_id          : std_logic_vector(11 downto 0);
-signal instr_20_0_id          : std_logic_vector(20 downto 0);
+signal instr_25_0_id          : std_logic_vector(25 downto 0);
 signal pc_id                  : std_logic_vector(addr_width - 1 downto 0);
 signal pc_p4_id               : std_logic_vector(addr_width - 1 downto 0);
 signal reg_d_1_id             : std_logic_vector(data_width - 1 downto 0);
@@ -62,7 +62,7 @@ signal jump_branch_addr_id    : std_logic_vector(addr_width - 1 downto 0);
 -- id_ex sigs ----------------------------------------------------------------
 -- execute
 signal ctrl_flags_id_ex       : std_logic_vector(11 downto 0);
-signal instr_20_0_id_ex       : std_logic_vector(20 downto 0);
+signal instr_25_0_id_ex       : std_logic_vector(25 downto 0);
 signal pc_id_ex               : std_logic_vector(addr_width - 1 downto 0);
 signal reg_d_1_id_ex          : std_logic_vector(data_width - 1 downto 0);
 signal reg_d_2_id_ex          : std_logic_vector(data_width - 1 downto 0);
@@ -76,35 +76,32 @@ signal branch_addr_ex         : std_logic_vector(addr_width - 1 downto 0);
 signal jump_addr_ex           : std_logic_vector(addr_width - 1 downto 0);
 signal pc_ex                  : std_logic_vector(addr_width - 1 downto 0);
 signal alu_ex                 : std_logic_vector(data_width - 1 downto 0);
-signal r_d_2_ex               : std_logic_vector(data_width - 1 downto 0);
+signal fw_mm_w_d_ex           : std_logic_vector(data_width - 1 downto 0);
 signal w_reg_ex               : std_logic_vector(reg_i_width - 1 downto 0);
 
 -- ex_mem sigs ----------------------------------------------------------------
 -- mem
 signal alu_z_ex_mm            : std_logic;
-signal mem_to_reg_mm          : std_logic;
-signal reg_w_mm               : std_logic;
 signal ctrl_flags_ex_mm       : std_logic_vector(5 downto 0); -- mem_r 5, branch 4, jump 3, mem_to_reg 2, mem_w 1, reg_w 0
 signal pc_ex_mm               : std_logic_vector(addr_width - 1 downto 0);
 signal branch_addr_ex_mm      : std_logic_vector(addr_width - 1 downto 0);
 signal jump_addr_ex_mm        : std_logic_vector(addr_width - 1 downto 0);
 signal alu_ex_mm              : std_logic_vector(data_width - 1 downto 0);
-signal r_d_2_ex_mm            : std_logic_vector(data_width - 1 downto 0);
+signal fw_mm_w_d_ex_mm        : std_logic_vector(data_width - 1 downto 0);
 signal w_reg_ex_mm            : std_logic_vector(reg_i_width - 1 downto 0);
 
 -- memory sigs ----------------------------------------------------------------
 -- ctrl_unit branch/j flags, branch/j address | to if
-signal branch_mm              : std_logic;
-signal jump_mm                : std_logic;
+signal branch_mm              : natural range 0 to mux_n - 1;
+signal jump_mm                : natural range 0 to mux_n - 1;
 signal return_addr_mm         : std_logic_vector(addr_width - 1 downto 0);
 
 -- mem r data, alu computation, w reg
+signal mem_to_reg_mm          : std_logic;
+signal reg_w_mm               : std_logic;
 signal mem_r_d_mm             : std_logic_vector(data_width - 1 downto 0);
-signal mem_alu_mm             : std_logic_vector(data_width - 1 downto 0);
+signal alu_mm                 : std_logic_vector(data_width - 1 downto 0);
 signal w_reg_mm               : std_logic_vector(reg_i_width - 1 downto 0);
-
--- ctrl_unit flags | 2 & 0 to wb | 3 & 1 to if
-signal ctrl_flags_mm          : std_logic_vector(3 downto 0);
 
 -- mem_wb sigs ----------------------------------------------------------------
 -- write back
@@ -193,7 +190,7 @@ decode : entity work.decode(Behavioral)
         -- w reg, ctrl_unit flags, instr[20:0], pc, pc + 4, reg data 1/2, jump/branch addr out | to ex
         w_reg_id            => w_reg_id,
         ctrl_flags_id       => ctrl_flags_id,
-        instr_20_0_id       => instr_20_0_id,
+        instr_25_0_id       => instr_25_0_id,
         pc_id               => pc_id,
         pc_p4_id            => pc_p4_id,
         reg_d_1_id          => reg_d_1_id,
@@ -217,15 +214,15 @@ id_ex_reg : entity work.id_ex(Behavioral)
         pc_id               => pc_id,
         reg_d_1_id          => reg_d_1_id,
         reg_d_2_id          => reg_d_2_id,
-        instr_20_0_id       => instr_20_0_id,
+        instr_25_0_id       => instr_25_0_id,
 
         -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu computation, reg data 2, w reg | to mem
         ctrl_flags_ex       => ctrl_flags_id_ex,
-        instr_20_0_ex       => instr_20_0_id_ex,
+        instr_25_0_ex       => instr_25_0_id_ex,
         pc_ex               => pc_id_ex,
         reg_d_1_ex          => reg_d_1_id_ex,
         reg_d_2_ex          => reg_d_2_id_ex,
-        jump_branch_addr_ex =>jump_branch_addr_id_ex
+        jump_branch_addr_ex => jump_branch_addr_id_ex
     );
 
 
@@ -233,7 +230,7 @@ id_ex_reg : entity work.id_ex(Behavioral)
 -- execute
 execute : entity work.execute(Behavioral)
     generic map (
-        mux_n, reg_i_width, addr_width, data_width
+        reg_i_width, addr_width, data_width
     )
     port map (
         clk                 => clk,
@@ -241,11 +238,21 @@ execute : entity work.execute(Behavioral)
 
         -- ctrl_unit flags, instr[20:0], pc, reg_d_1/2, branch/j addr | from id
         ctrl_flags_id       => ctrl_flags_id_ex,
-        instr_20_0_id       => instr_20_0_id_ex,
+        instr_25_0_id       => instr_25_0_id_ex,
         pc_id               => pc_id_ex,
         reg_d_1_id          => reg_d_1_id_ex,
         reg_d_2_id          => reg_d_2_id_ex,
         jump_branch_addr_id => jump_branch_addr_id_ex,
+
+        -- ctrl_unit flag, reg file w reg | from mm
+        reg_w_mm            => reg_w_mm,
+        w_reg_mm            => w_reg_mm,
+        w_d_mm              => alu_mm,
+
+        -- reg file w reg | from wb
+        reg_w_wb            => reg_w_wb,
+        w_reg_wb            => w_reg_wb,
+        w_d_wb              => w_d_wb,
 
         -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu computation, reg data 2, w reg | to mem
         alu_z_ex            => alu_z_ex,
@@ -254,7 +261,7 @@ execute : entity work.execute(Behavioral)
         jump_addr_ex        => jump_addr_ex,
         pc_ex               => pc_ex,
         alu_ex              => alu_ex,
-        r_d_2_ex            => r_d_2_ex,
+        fw_mm_w_d_ex        => fw_mm_w_d_ex,
         w_reg_ex            => w_reg_ex
     );
 
@@ -276,7 +283,7 @@ ex_mem_reg : entity work.ex_mem(Behavioral)
         jump_addr_ex   => jump_addr_ex,
         pc_ex          => pc_ex,
         alu_ex         => alu_ex,
-        r_d_2_ex       => r_d_2_ex,
+        fw_mm_w_d_ex   => fw_mm_w_d_ex,
         w_reg_ex       => w_reg_ex,
 
         -- mem
@@ -286,7 +293,7 @@ ex_mem_reg : entity work.ex_mem(Behavioral)
         branch_addr_mm => branch_addr_ex_mm,
         jump_addr_mm   => jump_addr_ex_mm,
         alu_mm         => alu_ex_mm,
-        r_d_2_mm       => r_d_2_ex_mm,
+        fw_mm_w_d_mm   => fw_mm_w_d_ex_mm,
         w_reg_in_mm    => w_reg_ex_mm
     );
 
@@ -308,7 +315,7 @@ memory : entity work.memory(Behavioral)
         jump_addr_ex   => jump_addr_ex_mm,
         pc_ex          => pc_ex_mm,
         alu_ex         => alu_ex_mm,
-        r_d_2_ex       => r_d_2_ex_mm,
+        fw_mm_w_d_ex   => fw_mm_w_d_ex_mm,
         w_reg_ex       => w_reg_ex_mm,
 
         -- ctrl_unit branch/j flags, branch/j address | to if
@@ -320,7 +327,7 @@ memory : entity work.memory(Behavioral)
         mem_to_reg_mm  => mem_to_reg_mm,
         reg_w_mm       => reg_w_mm,
         mem_r_d_mm     => mem_r_d_mm,
-        alu_mm         => mem_alu_mm,
+        alu_mm         => alu_mm,
         w_reg_mm       => w_reg_mm
     );
 
@@ -339,7 +346,7 @@ mem_wb_reg : entity work.mem_wb(Behavioral)
         mem_to_reg_mm => mem_to_reg_mm,
         reg_w_mm      => reg_w_mm,
         mem_r_d_mm    => mem_r_d_mm,
-        mem_alu_mm    => mem_alu_mm,
+        alu_mm        => alu_mm,
         w_reg_mm      => w_reg_mm,
 
         -- write back

@@ -37,7 +37,7 @@ entity ex_mem is
         jump_addr_ex      : in std_logic_vector(addr_width - 1 downto 0);
         pc_ex             : in std_logic_vector(addr_width - 1 downto 0);
         alu_ex            : in std_logic_vector(data_width - 1 downto 0);
-        r_d_2_ex          : in std_logic_vector(data_width - 1 downto 0);
+        fw_mm_w_d_ex      : in std_logic_vector(data_width - 1 downto 0);
         w_reg_ex          : in std_logic_vector(reg_i_width - 1 downto 0);
 
         -- mem
@@ -47,7 +47,7 @@ entity ex_mem is
         jump_addr_mm      : out std_logic_vector(addr_width - 1 downto 0);
         pc_mm             : out std_logic_vector(addr_width - 1 downto 0);
         alu_mm            : out std_logic_vector(data_width - 1 downto 0);
-        r_d_2_mm          : out std_logic_vector(data_width - 1 downto 0);
+        fw_mm_w_d_mm      : out std_logic_vector(data_width - 1 downto 0);
         w_reg_in_mm       : out std_logic_vector(reg_i_width - 1 downto 0)
     );
 end ex_mem;
@@ -66,7 +66,7 @@ begin
             branch_addr_mm <= (others => '0');
             jump_addr_mm   <= (others => '0');
             alu_mm         <= (others => '0');
-            r_d_2_mm       <= (others => '0');
+            fw_mm_w_d_mm   <= (others => '0');
             w_reg_in_mm    <= (others => '0');
 
         else
@@ -76,7 +76,7 @@ begin
             branch_addr_mm <= branch_addr_ex;
             jump_addr_mm   <= jump_addr_ex;
             alu_mm         <= alu_ex;
-            r_d_2_mm       <= r_d_2_ex;
+            fw_mm_w_d_mm   <= fw_mm_w_d_ex;
             w_reg_in_mm    <= w_reg_ex;
 
         end if;

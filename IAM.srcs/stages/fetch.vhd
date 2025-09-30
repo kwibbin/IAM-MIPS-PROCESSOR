@@ -34,8 +34,8 @@ entity fetch is
         rst              : in std_logic;
 
         -- ctrl unit branch/j flags, branch/jump/pc addr | from mem
-        branch_mm        : in std_logic;
-        jump_mm          : in std_logic;
+        branch_mm        : in natural range 0 to mux_n - 1;
+        jump_mm          : in natural range 0 to mux_n - 1;
         branch_j_addr_mm : in std_logic_vector(addr_width - 1 downto 0);
 
         -- pc + 4 | from id
@@ -60,7 +60,7 @@ begin
 
 process(branch_mm, jump_mm)
 begin
-    mux_sel <= 1 when branch_mm = '1' or jump_mm = '1' else 0;
+    mux_sel <= 1 when branch_mm = 1 or jump_mm = 1 else 0;
 end process;
 
 mux_packed_d <= branch_j_addr_mm & pc_p4_id;

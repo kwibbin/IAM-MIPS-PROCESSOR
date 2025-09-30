@@ -46,14 +46,14 @@ end write_back;
 
 architecture Behavioral of write_back is
 
-signal resolved_wb_d : natural range 0 to mux_n - 1;
+signal resolved_wb_sel : natural range 0 to mux_n - 1;
 signal reg_d_packed  : std_logic_vector(data_width * mux_n - 1 downto 0);
 
 begin
 
 process(mem_to_reg_mm)
 begin
-    resolved_wb_d <= 1 when mem_to_reg_mm = '1' else 0;
+    resolved_wb_sel <= 1 when mem_to_reg_mm = '1' else 0;
 end process;
 
 reg_w_wb <= reg_w_mm;
@@ -67,7 +67,7 @@ jump_mux : entity work.mux(Behavioral)
         out_width => data_width
     )
     port map (
-        sel   => resolved_wb_d, -- mem_to_reg
+        sel   => resolved_wb_sel, -- mem_to_reg
         in_d  => reg_d_packed,
 
         out_d => w_d_wb

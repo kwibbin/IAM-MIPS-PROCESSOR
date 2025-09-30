@@ -47,7 +47,7 @@ entity decode is
         -- w reg, ctrl_unit flags, instr[20:0], pc, pc + 4, reg data 1/2, jump/branch addr out | to ex
         w_reg_id            : out std_logic_vector(9 downto 0);
         ctrl_flags_id       : out std_logic_vector(11 downto 0);
-        instr_20_0_id       : out std_logic_vector(20 downto 0);
+        instr_25_0_id       : out std_logic_vector(25 downto 0);
         pc_id               : out std_logic_vector(addr_width - 1 downto 0);
         reg_d_1_id          : out std_logic_vector(data_width - 1 downto 0);
         reg_d_2_id          : out std_logic_vector(data_width - 1 downto 0);
@@ -59,15 +59,12 @@ architecture Behavioral of decode is
 
 begin
 
-process(clk, rst)
+process(pc_if, instr_if)
 begin
-    if rising_edge(clk) then
-        pc_id               <= pc_if;
-        w_reg_id            <= instr_if(20 downto 11);
-        instr_20_0_id       <= instr_if(20 downto 0);
-        jump_branch_addr_id <= instr_if(addr_width - 1 downto 0);
-
-    end if;
+    pc_id               <= pc_if;
+    w_reg_id            <= instr_if(20 downto 11);
+    instr_25_0_id       <= instr_if(25 downto 0);
+    jump_branch_addr_id <= instr_if(addr_width - 1 downto 0);
 end process;
 
 -- to if
