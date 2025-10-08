@@ -23,19 +23,20 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity instruction_mem is
     generic (
-        data_width : positive := 32;
-        addr_width : positive := 16
+        magic_width : positive := 16;
+        addr_width  : positive := 32;
+        data_width  : positive := 32
     );
     port (
-        -- clk   : in std_logic;
-        pc    : in std_logic_vector(addr_width - 1 downto 0);
+        pc    : in std_logic_vector(magic_width - 1 downto 0);
+
         instr : out std_logic_vector(data_width - 1 downto 0)
     );
 end instruction_mem;
 
 architecture Behavioral of instruction_mem is
 
-    constant addr_range : natural := 2 ** addr_width - 1;  -- 64KB / 4-byte = 16K words
+    constant addr_range : natural := 2 ** magic_width - 1;  -- 64KB / 4-byte = 16K words
     type mem_arr is array(0 to addr_range) of std_logic_vector(7 downto 0);
     signal instr_ROM : mem_arr := (
         -- addi $1, $0, 4

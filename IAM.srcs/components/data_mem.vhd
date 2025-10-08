@@ -24,14 +24,15 @@ use IEEE.numeric_std.all;
 
 entity data_memory is
     generic (
-        addr_width : positive := 16;
-        data_width : positive := 32
+        magic_width : positive := 16;
+        addr_width  : positive := 32;
+        data_width  : positive := 32
     );
     port (
         mem_w  : in std_logic;
         mem_r  : in std_logic;
 
-        addr   : in std_logic_vector(addr_width - 1 downto 0);
+        addr   : in std_logic_vector(magic_width - 1 downto 0);
         w_d    : in std_logic_vector(data_width - 1 downto 0);
 
         r_d    : out std_logic_vector(data_width - 1 downto 0)

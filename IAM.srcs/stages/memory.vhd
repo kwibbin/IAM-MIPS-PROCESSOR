@@ -25,7 +25,8 @@ entity memory is
     generic (
         mux_n          : positive := 2;
         reg_i_width    : positive := 5;
-        addr_width     : positive := 16;
+        magic_width    : positive := 16;
+        addr_width     : positive := 32;
         data_width     : positive := 32
     );
     port (
@@ -117,12 +118,14 @@ jump_mux : entity work.mux(Behavioral)
 
 data_mem : entity work.data_memory(Behavioral)
     generic map(
+        magic_width => magic_width,
+        addr_width => addr_width,
         data_width => data_width
     )
     port map(
         mem_w => ctrl_flags_ex(1),
         mem_r => ctrl_flags_ex(5),
-        addr  => alu_ex(addr_width - 1 downto 0),
+        addr  => alu_ex(magic_width - 1 downto 0),
         w_d   => fw_mm_w_d_ex,
 
         r_d   => mem_r_d_mm

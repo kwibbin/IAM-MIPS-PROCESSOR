@@ -23,7 +23,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity mem_wb is
     generic (
         reg_i_width   : positive := 5;
-        addr_width    : positive := 16;
+        addr_width    : positive := 32;
         data_width    : positive := 32
         );
     port (

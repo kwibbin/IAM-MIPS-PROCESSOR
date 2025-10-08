@@ -19,11 +19,12 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity id_ex is
     generic (
         mux_n               : positive := 2;
-        addr_width          : positive := 16;
+        addr_width          : positive := 32;
         data_width          : positive := 32;
         alignment           : std_logic_vector(3 downto 0) := "0100"
     );
@@ -69,7 +70,7 @@ begin
             pc_ex               <= pc_id;
             reg_d_1_ex          <= reg_d_1_id;
             reg_d_2_ex          <= reg_d_2_id;
-            jump_branch_addr_ex <= instr_25_0_id(15 downto 0);
+            jump_branch_addr_ex <= std_logic_vector(resize(unsigned(instr_25_0_id(15 downto 0)), addr_width)); -- imm region 16 -> 32 bit
 
         end if;
     end if;

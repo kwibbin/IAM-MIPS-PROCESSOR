@@ -23,7 +23,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity if_id is
     generic (
         mux_n      : positive := 2;
-        addr_width : positive := 16;
+        addr_width : positive := 32;
         data_width : positive := 32;
         alignment  : std_logic_vector(3 downto 0) := "0100"
     );

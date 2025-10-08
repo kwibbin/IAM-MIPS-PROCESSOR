@@ -22,12 +22,12 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity PC is
     generic (
-        addr_width : positive := 16
+        magic_width : positive := 16;
+        addr_width  : positive := 32
     );
     port (
-        -- clk    : in std_logic;
         rst    : in std_logic;
-        pc_in  : in std_logic_vector(addr_width - 1 downto 0);
+        pc_in  : in std_logic_vector(magic_width - 1 downto 0);
 
         pc_out : out std_logic_vector(addr_width - 1 downto 0)
     );
@@ -39,7 +39,9 @@ begin
 
 process(rst, pc_in)
 begin
-    pc_out <= pc_in when rst /= '1' else (others => '0');
+    pc_out(magic_width - 1 downto 0) <= pc_in when rst /= '1' else (others => '0');
 end process;
+
+pc_out(addr_width - 1 downto magic_width) <= (others => '0');
 
 end Behavioral;

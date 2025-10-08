@@ -25,7 +25,8 @@ use IEEE.NUMERIC_STD.ALL;
 entity fetch is
     generic (
         mux_n            : positive := 2;
-        addr_width       : positive := 16;
+        magic_width      : positive := 16;
+        addr_width       : positive := 32;
         data_width       : positive := 32;
         alignment        : std_logic_vector(3 downto 0) := "0100"
     );
@@ -79,24 +80,24 @@ fetch_mux : entity work.mux(Behavioral)
 
 fetch_pc : entity work.pc(Behavioral)
     generic map (
-        addr_width => addr_width
+        magic_width => magic_width,
+        addr_width  => addr_width
     )
     port map (
-        -- clk => clk,
         rst    => rst,
-        pc_in  => mux_out,
+        pc_in  => mux_out(magic_width - 1 downto 0),
 
         pc_out => pc_s
     );
 
 fetch_instr_mem : entity work.instruction_mem(Behavioral)
     generic map(
-        data_width => data_width,
-        addr_width => addr_width
+        magic_width => magic_width,
+        addr_width  => addr_width,
+        data_width  => data_width
     )
     port map (
-        -- clk => clk,
-        pc    => pc_s,
+        pc    => pc_s(magic_width - 1 downto 0),
 
         instr => instr_if
     );

@@ -25,7 +25,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity execute is
     generic (
         reg_i_width         : positive := 5;
-        addr_width          : positive := 16;
+        addr_width          : positive := 32;
         data_width          : positive := 32
     );
     port (

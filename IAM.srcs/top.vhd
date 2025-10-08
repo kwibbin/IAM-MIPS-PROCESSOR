@@ -24,7 +24,8 @@ entity top is
     generic (
         mux_n       : positive := 2;                         -- # of mux inputs
         reg_i_width : positive := 5;                         -- 2^5 = 32 registers
-        addr_width  : positive := 16;                        -- 16 bit addressible range
+        magic_width : positive := 16;                        -- actual addressable range of PC/instr mem/data mem
+        addr_width  : positive := 32;                        -- fake 32 bit addressable range masked by magic width
         data_width  : positive := 32;                        -- 32-bit
         alignment   : std_logic_vector(3 downto 0) := "0100" -- byte alignment
     );
@@ -124,7 +125,7 @@ begin
 -- fetch
 fetch_stage : entity work.fetch(Behavioral)
     generic map(
-        mux_n, addr_width, data_width, alignment
+        mux_n, magic_width, addr_width, data_width, alignment
     )
     port map (
         clk              => clk,
@@ -171,7 +172,7 @@ if_id_reg : entity work.if_id(Behavioral)
 -- decode
 decode : entity work.decode(Behavioral)
     generic map (
-        addr_width, data_width
+        magic_width, addr_width, data_width
     )
     port map (
         clk                 => clk,
@@ -302,7 +303,7 @@ ex_mem_reg : entity work.ex_mem(Behavioral)
 -- mem
 memory : entity work.memory(Behavioral)
     generic map (
-        mux_n, reg_i_width, addr_width, data_width
+        mux_n, reg_i_width, magic_width, addr_width, data_width
     )
     port map (
         clk            => clk,
