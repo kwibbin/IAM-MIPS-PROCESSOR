@@ -29,9 +29,6 @@ entity execute is
         data_width          : positive := 32
     );
     port (
-        clk                 : in std_logic;
-        rst                 : in std_logic;
-
         -- ctrl_unit flags, instr[20:0], pc, reg_d_1/2, branch/j addr | from id
         ctrl_flags_id       : in std_logic_vector(11 downto 0);
         instr_25_0_id       : in std_logic_vector(25 downto 0);

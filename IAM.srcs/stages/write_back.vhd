@@ -28,9 +28,6 @@ entity write_back is
         data_width    : positive := 32
     );
     port (
-        clk           : in std_logic;
-        rst           : in std_logic;
-
         mem_to_reg_mm : in std_logic;
         reg_w_mm      : in std_logic;
         mem_r_d_mm    : in std_logic_vector(data_width - 1 downto 0);

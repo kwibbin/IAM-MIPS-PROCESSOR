@@ -29,9 +29,6 @@ entity decode is
         data_width          : positive := 32
     );
     port (
-        clk                 : in std_logic;
-        rst                 : in std_logic;
-
         -- ctrl_unit flag, w register, and w data | from wb
         reg_w_wb            : in std_logic;
         w_reg_wb            : in std_logic_vector(4 downto 0);

@@ -175,9 +175,6 @@ decode : entity work.decode(Behavioral)
         magic_width, addr_width, data_width
     )
     port map (
-        clk                 => clk,
-        rst                 => rst,
-
         -- ctrl_unit flag, w register, and w data | from wb
         reg_w_wb            => reg_w_wb,
         w_reg_wb            => w_reg_wb,
@@ -234,9 +231,6 @@ execute : entity work.execute(Behavioral)
         reg_i_width, addr_width, data_width
     )
     port map (
-        clk                 => clk,
-        rst                 => rst,
-
         -- ctrl_unit flags, instr[20:0], pc, reg_d_1/2, branch/j addr | from id
         ctrl_flags_id       => ctrl_flags_id_ex,
         instr_25_0_id       => instr_25_0_id_ex,
@@ -306,9 +300,6 @@ memory : entity work.memory(Behavioral)
         mux_n, reg_i_width, magic_width, addr_width, data_width
     )
     port map (
-        clk            => clk,
-        rst            => rst,
-
         -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu computation, reg data 2, w reg | from ex
         alu_z_ex       => alu_z_ex_mm,
         ctrl_flags_ex  => ctrl_flags_ex_mm,-- mem_r 5, branch 4, jump 3, mem_to_reg 2, mem_w 1, reg_w 0
@@ -366,9 +357,6 @@ write_back : entity work.write_back(Behavioral)
             mux_n, reg_i_width, data_width
     )
     port map (
-        clk           => clk,
-        rst           => rst,
-
         -- ctrl_unit flags, mem r data, alu computation, w reg | from mem
         mem_to_reg_mm => mem_to_reg_mm_wb,
         reg_w_mm      => reg_w_mm_wb,

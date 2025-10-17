@@ -30,9 +30,6 @@ entity memory is
         data_width     : positive := 32
     );
     port (
-        clk            : in std_logic;
-        rst            : in std_logic;
-
         -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu computation, reg data 2, w reg | from ex
         alu_z_ex       : in std_logic;
         ctrl_flags_ex  : in std_logic_vector(5 downto 0); -- mem_r 5, branch 4, jump 3, mem_to_reg 2, mem_w 1, reg_w 0
