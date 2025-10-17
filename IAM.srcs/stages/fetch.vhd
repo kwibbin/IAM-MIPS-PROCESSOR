@@ -79,12 +79,11 @@ fetch_mux : entity work.mux(Behavioral)
 
 fetch_pc : entity work.pc(Behavioral)
     generic map (
-        magic_width => magic_width,
         addr_width  => addr_width
     )
     port map (
         rst    => rst,
-        pc_in  => mux_out(magic_width - 1 downto 0),
+        pc_in  => mux_out,
 
         pc_out => pc_s
     );

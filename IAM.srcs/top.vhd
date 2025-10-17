@@ -172,23 +172,25 @@ decode : entity work.decode(Behavioral)
         magic_width, addr_width, data_width
     )
     port map (
+        clk           => clk,
+
         -- ctrl_unit flag, w register, and w data | from wb
-        reg_w_wb            => reg_w_wb,
-        w_reg_wb            => w_reg_wb,
-        w_d_wb              => w_d_wb,
+        reg_w_wb      => reg_w_wb,
+        w_reg_wb      => w_reg_wb,
+        w_d_wb        => w_d_wb,
 
         -- pc, pc + 4, and instr | from if
-        pc_if               => pc_if_id,
-        pc_p4_if            => pc_p4_if_id,
-        instr_if            => instr_if_id,
+        pc_if         => pc_if_id,
+        pc_p4_if      => pc_p4_if_id,
+        instr_if      => instr_if_id,
 
         -- ctrl_unit flags, instr[20:0], pc, pc + 4, reg data 1/2, jump/branch addr out | to ex
-        ctrl_flags_id       => ctrl_flags_id,
-        instr_25_0_id       => instr_25_0_id,
-        pc_id               => pc_id,
-        pc_p4_id            => pc_p4_id,
-        reg_d_1_id          => reg_d_1_id,
-        reg_d_2_id          => reg_d_2_id
+        ctrl_flags_id => ctrl_flags_id,
+        instr_25_0_id => instr_25_0_id,
+        pc_id         => pc_id,
+        pc_p4_id      => pc_p4_id,
+        reg_d_1_id    => reg_d_1_id,
+        reg_d_2_id    => reg_d_2_id
     );
 
 

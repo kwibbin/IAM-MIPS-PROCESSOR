@@ -26,12 +26,14 @@ entity reg_mem is
         data_width : positive := 32
     );
     port (
+        clk            : in std_logic;
+
         -- from wb
         reg_w          : in std_logic;  -- flag from ctrl_unit
         w_reg          : in std_logic_vector(4 downto 0);
         w_d            : in std_logic_vector(data_width - 1 downto 0);
 
-        r_reg1, r_reg2 : in std_logic_vector(4 downto 0);   -- inst[20:216] & inst[25:21]
+        r_reg1, r_reg2 : in std_logic_vector(4 downto 0);   -- inst[20:21] & inst[25:21]
 
         r_d1, r_d2     : out std_logic_vector(data_width - 1 downto 0));
 end reg_mem;
@@ -43,9 +45,9 @@ signal reg_array : reg := (others => (others => '0'));
 
 begin
 
-process(reg_w, w_d, w_reg)
+process(clk, reg_w, w_d, w_reg)
 begin
-    if reg_w = '1' and w_reg /= "00000" then -- protecting the $zero register
+    if rising_edge(clk) and reg_w = '1' and w_reg /= "00000" then -- protecting the $zero register
         reg_array(to_integer(unsigned(w_reg))) <= w_d;
     end if;
 end process;

@@ -29,6 +29,8 @@ entity decode is
         data_width          : positive := 32
     );
     port (
+        clk                 : in std_logic;
+
         -- ctrl_unit flag, w register, and w data | from wb
         reg_w_wb            : in std_logic;
         w_reg_wb            : in std_logic_vector(4 downto 0);
@@ -82,11 +84,14 @@ ctrl_unit : entity work.ctrl_unit(Behavioral)
 
 reg_file : entity work.reg_mem(Behavioral)
     port map(
+        clk       => clk,
+
         reg_w     => reg_w_wb,
-        r_reg1    => instr_if(25 downto 21),
-        r_reg2    => instr_if(20 downto 16),
         w_reg     => w_reg_wb,
         w_d       => w_d_wb,
+
+        r_reg1    => instr_if(25 downto 21),
+        r_reg2    => instr_if(20 downto 16),
 
         r_d1      => reg_d_1_id,
         r_d2      => reg_d_2_id
