@@ -63,8 +63,6 @@ signal pc_branch_addr   : std_logic_vector(addr_width - 1 downto 0);
 signal pc_branch_packed : std_logic_vector(addr_width * mux_n - 1 downto 0);
 signal mux1_jump_packed : std_logic_vector(addr_width * mux_n - 1 downto 0);
 
-signal branch_en        : std_logic;
-
 begin
 
 process(alu_z_ex, ctrl_flags_ex(3), ctrl_flags_ex(4))
@@ -75,7 +73,6 @@ end process;
 
 pc_branch_packed <= branch_addr_ex & pc_ex;
 mux1_jump_packed <= jump_addr_ex & pc_branch_addr;
-branch_en        <= '1' when alu_z_ex = '1' and ctrl_flags_ex(4) = '1' else '0';
 
 process(alu_ex, w_reg_ex, ctrl_flags_ex)
 begin
