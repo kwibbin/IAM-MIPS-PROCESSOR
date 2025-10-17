@@ -50,8 +50,7 @@ signal pc_p4_if_id            : std_logic_vector(addr_width - 1 downto 0);
 signal instr_if_id            : std_logic_vector(data_width - 1 downto 0);
 
 -- decode sigs ----------------------------------------------------------------
--- w reg, ctrl_unit flags, instr[20:0], pc, pc + 4, reg data 1/2, jump/branch addr out | to ex
-signal w_reg_id               : std_logic_vector(9 downto 0);
+-- ctrl_unit flags, instr[20:0], pc, pc + 4, reg data 1/2, jump/branch addr out | to ex
 signal ctrl_flags_id          : std_logic_vector(11 downto 0);
 signal instr_25_0_id          : std_logic_vector(25 downto 0);
 signal pc_id                  : std_logic_vector(addr_width - 1 downto 0);
@@ -184,8 +183,7 @@ decode : entity work.decode(Behavioral)
         pc_p4_if            => pc_p4_if_id,
         instr_if            => instr_if_id,
 
-        -- w reg, ctrl_unit flags, instr[20:0], pc, pc + 4, reg data 1/2, jump/branch addr out | to ex
-        w_reg_id            => w_reg_id,
+        -- ctrl_unit flags, instr[20:0], pc, pc + 4, reg data 1/2, jump/branch addr out | to ex
         ctrl_flags_id       => ctrl_flags_id,
         instr_25_0_id       => instr_25_0_id,
         pc_id               => pc_id,

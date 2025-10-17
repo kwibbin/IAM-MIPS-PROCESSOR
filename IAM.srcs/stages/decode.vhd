@@ -42,8 +42,7 @@ entity decode is
         -- pc + 4 | to if
         pc_p4_id            : out std_logic_vector(addr_width - 1 downto 0);
 
-        -- w reg, ctrl_unit flags, instr[20:0], pc, pc + 4, reg data 1/2, jump/branch addr out | to ex
-        w_reg_id            : out std_logic_vector(9 downto 0);
+        -- ctrl_unit flags, instr[20:0], pc, pc + 4, reg data 1/2, jump/branch addr out | to ex
         ctrl_flags_id       : out std_logic_vector(11 downto 0);
         instr_25_0_id       : out std_logic_vector(25 downto 0);
         pc_id               : out std_logic_vector(addr_width - 1 downto 0);
@@ -59,7 +58,6 @@ begin
 process(pc_if, instr_if)
 begin
     pc_id               <= pc_if;
-    w_reg_id            <= instr_if(20 downto 11);
     instr_25_0_id       <= instr_if(25 downto 0);
 end process;
 
