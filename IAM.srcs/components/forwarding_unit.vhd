@@ -81,6 +81,10 @@ begin
                 end if;
             end if;
 
+        else -- standard jump case
+            fw_d_1_sel <= 0; -- read d 1
+            fw_d_2_sel <= 2; -- sign ext imm
+            fw_w_d_sel <= 0; -- read d 2
         end if;
 
     end process;
