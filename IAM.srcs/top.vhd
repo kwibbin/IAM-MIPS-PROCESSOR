@@ -31,11 +31,15 @@ entity top is
     );
     port (
         clk         : in std_logic;
-        rst         : in std_logic
+        btnC        : in std_logic; -- serving as rst
+
+        led         : out std_logic_vector(15 downto 0)
     );
 end top;
 
 architecture Behavioral of top is
+
+signal rst                    : std_logic;
 
 -- fetch sigs -----------------------------------------------------------------
 -- pc, pc + 4, instr[31:0] | to id
@@ -119,6 +123,15 @@ signal w_reg_wb               : std_logic_vector(reg_i_width - 1 downto 0);
 -- END SIGNALS ----------------------------------------------------------------
 
 begin
+
+rst <= btnC;
+
+process(clk)
+begin
+    if rising_edge(clk) then
+        led <= pc_if(15 downto 0);
+    end if;
+end process;
 
 -- fetch
 fetch_stage : entity work.fetch(Behavioral)

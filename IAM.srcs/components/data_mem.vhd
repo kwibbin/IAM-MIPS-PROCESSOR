@@ -43,8 +43,8 @@ end data_memory;
 
 architecture Behavioral of data_memory is
 
-constant addr_range : natural := 2 ** magic_width - 1;  -- 64KB / 4-byte word = 16K words
-type memory_type is array(0 to addr_range) of std_logic_vector(7 downto 0);
+constant addr_range : natural := (2 ** magic_width - 1) / 4;  -- 64KB / 4-byte word = 16K words; so 2^14 addressible range
+type memory_type is array(0 to addr_range) of std_logic_vector(data_width - 1 downto 0);
 signal memory : memory_type := (
 
 others => (others => '0'));
@@ -57,18 +57,12 @@ process(clk, mem_w, mem_r, addr, w_d)
 begin
     if rising_edge(clk) then
         if mem_w = '1' then
-            memory(to_integer(unsigned(addr)))     <= w_d(31 downto 24);
-            memory(to_integer(unsigned(addr) + 1)) <= w_d(23 downto 16);
-            memory(to_integer(unsigned(addr) + 2)) <= w_d(15 downto 8);
-            memory(to_integer(unsigned(addr) + 3)) <= w_d(7 downto 0);
+            memory(to_integer(unsigned(addr(13 downto 0)))) <= w_d;
         end if;
         if mem_r = '1' then
-            r_d_buff(31 downto 24) <= memory(to_integer(unsigned(addr)));
-            r_d_buff(23 downto 16) <= memory(to_integer(unsigned(addr) + 1));
-            r_d_buff(15 downto 8)  <= memory(to_integer(unsigned(addr) + 2));
-            r_d_buff(7 downto 0)   <= memory(to_integer(unsigned(addr) + 3));
+            r_d_buff <= memory(to_integer(unsigned(addr)));
         else
-            r_d_buff(data_width - 1 downto 0) <= (others => '0');
+            r_d_buff <= (others => '0');
         end if;
     end if;
 end process;
