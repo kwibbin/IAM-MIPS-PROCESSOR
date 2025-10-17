@@ -27,8 +27,8 @@ entity alu is
     );
     port (
         in_d1, in_d2 : in std_logic_vector(data_width - 1 downto 0);
-        alu_ctrl     : in std_logic_vector(3 downto 0);
         shamt        : in std_logic_vector(4 downto 0);
+        alu_ctrl     : in std_logic_vector(3 downto 0);
 
         zero         : out std_logic;   -- flag for branch determination
         out_d        : out std_logic_vector(data_width - 1 downto 0));
@@ -41,7 +41,7 @@ signal d        : std_logic_vector(data_width - 1 downto 0);
 
 begin
 
-    process(in_d1, in_d2, alu_ctrl)
+    process(in_d1, in_d2, shamt, alu_ctrl)
     begin
         case alu_ctrl is
             when "0001" =>      -- Addition
