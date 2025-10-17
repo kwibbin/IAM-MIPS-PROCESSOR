@@ -193,6 +193,7 @@ alu : entity work.alu(Behavioral)
     port map(
         in_d1    => fw_alu_1_d,
         in_d2    => fw_alu_2_d,
+        shamt    => instr_25_0_id(10 downto 6),
         alu_ctrl => alu_ctrl,
 
         zero     => alu_z_ex,
