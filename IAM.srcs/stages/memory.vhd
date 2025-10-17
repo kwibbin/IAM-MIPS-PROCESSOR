@@ -30,6 +30,8 @@ entity memory is
         data_width     : positive := 32
     );
     port (
+        clk            : in std_logic;
+
         -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu computation, reg data 2, w reg | from ex
         alu_z_ex       : in std_logic;
         ctrl_flags_ex  : in std_logic_vector(5 downto 0); -- mem_r 5, branch 4, jump 3, mem_to_reg 2, mem_w 1, reg_w 0
@@ -117,8 +119,11 @@ data_mem : entity work.data_memory(Behavioral)
         data_width => data_width
     )
     port map(
+        clk   => clk,
+
         mem_w => ctrl_flags_ex(1),
         mem_r => ctrl_flags_ex(5),
+
         addr  => alu_ex(magic_width - 1 downto 0),
         w_d   => fw_mm_w_d_ex,
 

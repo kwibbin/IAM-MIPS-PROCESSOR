@@ -295,6 +295,8 @@ memory : entity work.memory(Behavioral)
         mux_n, reg_i_width, magic_width, addr_width, data_width
     )
     port map (
+        clk            => clk,
+
         -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu computation, reg data 2, w reg | from ex
         alu_z_ex       => alu_z_ex_mm,
         ctrl_flags_ex  => ctrl_flags_ex_mm,-- mem_r 5, branch 4, jump 3, mem_to_reg 2, mem_w 1, reg_w 0
