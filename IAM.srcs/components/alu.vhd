@@ -60,13 +60,13 @@ begin
                 d <= in_d1 XOR in_d2;
 
             when "0110" =>      -- Logical Shift Left
-                d <= std_logic_vector(shift_left(unsigned(shamt), to_integer(unsigned(in_d2))));
+                d <= std_logic_vector(shift_left(unsigned(in_d1), to_integer(unsigned(shamt))));
 
             when "0111" =>      -- Logical Shift Right
-                d <= std_logic_vector(shift_right(unsigned(shamt), to_integer(unsigned(in_d2))));
+                d <= std_logic_vector(shift_right(unsigned(in_d1), to_integer(unsigned(shamt))));
 
             when "1000" =>      -- Arithmetic Shift Right
-                d <= std_logic_vector(shift_right(signed(shamt), to_integer(signed(in_d2))));
+                d <= std_logic_vector(shift_right(signed(in_d1), to_integer(signed(shamt))));
 
             when "1001" =>      -- Branch if not equal (bneq)
                 d <= (others => '0') when in_d1 /= in_d2 else (others => '1');
@@ -87,7 +87,7 @@ begin
                 d <= (others => '0') when signed(in_d1) > signed(in_d2) else (others => '1');
 
             when others =>
-                NULL;
+                d <= zero_c;
         end case;
     end process;
 
