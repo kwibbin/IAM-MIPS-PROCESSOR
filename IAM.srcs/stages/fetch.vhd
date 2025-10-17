@@ -31,7 +31,6 @@ entity fetch is
         alignment        : std_logic_vector(3 downto 0) := "0100"
     );
     port (
-        clk              : in std_logic;
         rst              : in std_logic;
 
         -- ctrl unit branch/j flags, branch/jump/pc addr | from mem

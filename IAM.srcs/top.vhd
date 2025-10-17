@@ -126,7 +126,6 @@ fetch_stage : entity work.fetch(Behavioral)
         mux_n, magic_width, addr_width, data_width, alignment
     )
     port map (
-        clk              => clk,
         rst              => rst,
 
         -- ctrl unit branch/j flags, branch/jump/pc addr | from mem
