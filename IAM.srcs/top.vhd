@@ -58,7 +58,6 @@ signal pc_id                  : std_logic_vector(addr_width - 1 downto 0);
 signal pc_p4_id               : std_logic_vector(addr_width - 1 downto 0);
 signal reg_d_1_id             : std_logic_vector(data_width - 1 downto 0);
 signal reg_d_2_id             : std_logic_vector(data_width - 1 downto 0);
-signal jump_branch_addr_id    : std_logic_vector(addr_width - 1 downto 0);
 
 -- id_ex sigs ----------------------------------------------------------------
 -- execute
@@ -192,8 +191,7 @@ decode : entity work.decode(Behavioral)
         pc_id               => pc_id,
         pc_p4_id            => pc_p4_id,
         reg_d_1_id          => reg_d_1_id,
-        reg_d_2_id          => reg_d_2_id,
-        jump_branch_addr_id => jump_branch_addr_id
+        reg_d_2_id          => reg_d_2_id
     );
 
 

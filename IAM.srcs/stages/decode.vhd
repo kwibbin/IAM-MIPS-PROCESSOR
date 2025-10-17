@@ -48,8 +48,7 @@ entity decode is
         instr_25_0_id       : out std_logic_vector(25 downto 0);
         pc_id               : out std_logic_vector(addr_width - 1 downto 0);
         reg_d_1_id          : out std_logic_vector(data_width - 1 downto 0);
-        reg_d_2_id          : out std_logic_vector(data_width - 1 downto 0);
-        jump_branch_addr_id : out std_logic_vector(addr_width - 1 downto 0)
+        reg_d_2_id          : out std_logic_vector(data_width - 1 downto 0)
     );
 end decode;
 
@@ -62,7 +61,6 @@ begin
     pc_id               <= pc_if;
     w_reg_id            <= instr_if(20 downto 11);
     instr_25_0_id       <= instr_if(25 downto 0);
-    jump_branch_addr_id <= instr_if(addr_width - 1 downto 0);
 end process;
 
 -- to if
