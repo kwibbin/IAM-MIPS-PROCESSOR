@@ -32,6 +32,7 @@ entity top is
     port (
         clk         : in std_logic;
         btnC        : in std_logic; -- serving as rst
+        sw          : in std_logic_vector(15 downto 0);
 
         led         : out std_logic_vector(15 downto 0)
     );
@@ -129,7 +130,7 @@ rst <= btnC;
 process(clk)
 begin
     if rising_edge(clk) then
-        led <= pc_if(15 downto 0);
+        led <= sw;
     end if;
 end process;
 
