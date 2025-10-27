@@ -22,7 +22,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity ctrl_unit is
     port (
-        -- opcode  : in std_logic_vector(5 downto 0);
         instr_if   : in std_logic_vector(31 downto 0);
 
         reg_dst    : out std_logic;
