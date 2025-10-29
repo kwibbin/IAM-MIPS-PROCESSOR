@@ -28,18 +28,19 @@ entity if_id is
         alignment  : std_logic_vector(3 downto 0) := "0100"
     );
     port (
-        clk        : in std_logic;
-        rst        : in std_logic;
+        clk           : in std_logic;
+        rst           : in std_logic;
+        if_id_hold_id : in natural range 0 to 1;
 
         -- fetch
-        pc_if      : in std_logic_vector(addr_width - 1 downto 0);
-        pc_p4_if   : in std_logic_vector(addr_width - 1 downto 0);
-        instr_if   : in std_logic_vector(data_width - 1 downto 0);
+        pc_if         : in std_logic_vector(addr_width - 1 downto 0);
+        pc_p4_if      : in std_logic_vector(addr_width - 1 downto 0);
+        instr_if      : in std_logic_vector(data_width - 1 downto 0);
 
         -- decode
-        pc_id      : out std_logic_vector(addr_width - 1 downto 0);
-        pc_p4_id   : out std_logic_vector(addr_width - 1 downto 0);
-        instr_id   : out std_logic_vector(data_width - 1 downto 0)
+        pc_id         : out std_logic_vector(addr_width - 1 downto 0);
+        pc_p4_id      : out std_logic_vector(addr_width - 1 downto 0);
+        instr_id      : out std_logic_vector(data_width - 1 downto 0)
     );
 end if_id;
 
@@ -57,7 +58,7 @@ begin
             pc_p4_id <= (others => '0');
             instr_id <= (others => '0');
 
-        else
+        elsif if_id_hold_id /= 1 then
             pc_id    <= pc_if;
             pc_p4_id <= pc_p4_if;
             instr_id <= instr_if;

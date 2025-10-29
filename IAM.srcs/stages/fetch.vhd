@@ -34,12 +34,14 @@ entity fetch is
         rst              : in std_logic;
 
         -- ctrl unit branch/j flags, branch/jump/pc addr | from mem
-        branch_mm        : in natural range 0 to mux_n - 1;
-        jump_mm          : in natural range 0 to mux_n - 1;
+        branch_mm        : in natural range 0 to 1;
+        jump_mm          : in natural range 0 to 1;
         branch_j_addr_mm : in std_logic_vector(addr_width - 1 downto 0);
 
-        -- pc + 4 | from id
+        -- hazard ctrl flag, pc + 4, pc | from id
+        pc_hold_id       : in natural range 0 to 1;
         pc_p4_id         : in std_logic_vector(addr_width - 1 downto 0);
+        pc_hold          : in std_logic_vector(addr_width - 1 downto 0);
 
         -- pc, pc + 4, instr[31:0] | to id
         pc_if            : out std_logic_vector(addr_width - 1 downto 0);
@@ -51,23 +53,30 @@ end fetch;
 architecture Behavioral of fetch is
 
 
-signal mux_sel      : natural range 0 to mux_n - 1;
-signal mux_packed_d : std_logic_vector(addr_width * mux_n - 1 downto 0);
+constant mux_3_n    : positive := 3;
+signal mux_sel      : natural range 0 to mux_3_n - 1;
+signal mux_packed_d : std_logic_vector(addr_width * mux_3_n - 1 downto 0);
 signal mux_out      : std_logic_vector(addr_width - 1 downto 0);
 signal pc_s         : std_logic_vector(addr_width - 1 downto 0);
 
 begin
 
-process(branch_mm, jump_mm)
+process(branch_mm, jump_mm, pc_hold_id)
 begin
-    mux_sel <= 1 when branch_mm = 1 or jump_mm = 1 else 0;
+    if pc_hold_id = 1 then
+        mux_sel <= 2;
+    elsif branch_mm = 1 or jump_mm = 1 then
+        mux_sel <= 1;
+    else
+        mux_sel <= 0;
+    end if;
 end process;
 
-mux_packed_d <= branch_j_addr_mm & pc_p4_id;
+mux_packed_d <= pc_hold & branch_j_addr_mm & pc_p4_id;
 
 fetch_mux : entity work.mux(Behavioral)
     generic map (
-        in_n      => mux_n,
+        in_n      => mux_3_n,
         out_width => addr_width
     )
     port map (

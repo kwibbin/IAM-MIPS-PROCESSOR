@@ -55,11 +55,17 @@ signal pc_p4_if_id            : std_logic_vector(addr_width - 1 downto 0);
 signal instr_if_id            : std_logic_vector(data_width - 1 downto 0);
 
 -- decode sigs ----------------------------------------------------------------
+-- to if
+signal pc_hold_id             : natural range 0 to 1;
+signal pc_p4_id               : std_logic_vector(addr_width - 1 downto 0);
+
+-- to id/ex
+signal if_id_hold_id          : natural range 0 to 1;
+
 -- ctrl_unit flags, instr[20:0], pc, pc + 4, reg data 1/2, jump/branch addr out | to ex
 signal ctrl_flags_id          : std_logic_vector(11 downto 0);
 signal instr_25_0_id          : std_logic_vector(25 downto 0);
 signal pc_id                  : std_logic_vector(addr_width - 1 downto 0);
-signal pc_p4_id               : std_logic_vector(addr_width - 1 downto 0);
 signal reg_d_1_id             : std_logic_vector(data_width - 1 downto 0);
 signal reg_d_2_id             : std_logic_vector(data_width - 1 downto 0);
 
@@ -147,8 +153,10 @@ fetch_stage : entity work.fetch(Behavioral)
         jump_mm          => jump_mm,
         branch_j_addr_mm => return_addr_mm,
 
-        -- pc + 4 | from id
+        -- hazard ctrl flag, pc + 4, pc | from id
+        pc_hold_id       => pc_hold_id,
         pc_p4_id         => pc_p4_id,
+        pc_hold          => pc_id,
 
         -- pc, pc + 4, instr[31:0] | to id
         pc_if            => pc_if,
@@ -164,18 +172,19 @@ if_id_reg : entity work.if_id(Behavioral)
         mux_n, addr_width, data_width, alignment
     )
     port map (
-        clk      => clk,
-        rst      => rst,
+        clk           => clk,
+        rst           => rst,
+        if_id_hold_id => if_id_hold_id,
 
         -- fetch in
-        pc_if    => pc_if,
-        pc_p4_if => pc_p4_if,
-        instr_if => instr_if,
+        pc_if         => pc_if,
+        pc_p4_if      => pc_p4_if,
+        instr_if      => instr_if,
 
         -- decode out
-        pc_id    => pc_if_id,
-        pc_p4_id => pc_p4_if_id,
-        instr_id => instr_if_id
+        pc_id         => pc_if_id,
+        pc_p4_id      => pc_p4_if_id,
+        instr_id      => instr_if_id
     );
 
 
@@ -183,26 +192,37 @@ if_id_reg : entity work.if_id(Behavioral)
 -- decode
 decode : entity work.decode(Behavioral)
     generic map (
-        magic_width, addr_width, data_width
+        mux_n, reg_i_width, magic_width, addr_width, data_width
     )
     port map (
         clk           => clk,
+        rst           => rst,
 
         -- ctrl_unit flag, w register, and w data | from wb
         reg_w_wb      => reg_w_wb,
         w_reg_wb      => w_reg_wb,
         w_d_wb        => w_d_wb,
 
+        -- mem_r, rs & rt | from ex
+        mem_r_ex      => ctrl_flags_ex(5),
+        rs_rt_ex      => instr_25_0_id_ex(25 downto 16),
+
         -- pc, pc + 4, and instr | from if
         pc_if         => pc_if_id,
         pc_p4_if      => pc_p4_if_id,
         instr_if      => instr_if_id,
 
-        -- ctrl_unit flags, instr[20:0], pc, pc + 4, reg data 1/2, jump/branch addr out | to ex
+        -- hazard ctrl flag, pc + 4| to if
+        pc_hold_id    => pc_hold_id,
+        pc_p4_id      => pc_p4_id,
+
+        -- hazard ctrl flag | to if/id
+        if_id_hold_id => if_id_hold_id,
+
+        -- ctrl_unit flags, instr[20:0], pc, reg data 1/2, jump/branch addr out | to ex
         ctrl_flags_id => ctrl_flags_id,
         instr_25_0_id => instr_25_0_id,
         pc_id         => pc_id,
-        pc_p4_id      => pc_p4_id,
         reg_d_1_id    => reg_d_1_id,
         reg_d_2_id    => reg_d_2_id
     );
