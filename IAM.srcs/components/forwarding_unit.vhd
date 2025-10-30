@@ -14,7 +14,9 @@
 -- Revision:
 -- Revision 0.01 - File Created
 -- Additional Comments:
---
+--      forwarding unit resolves certain types of data hazards by bridging the
+--      data lines from later stages to earlier stages that require the data
+--      earlier than what can be made available traditionally
 ----------------------------------------------------------------------------------
 
 library IEEE;

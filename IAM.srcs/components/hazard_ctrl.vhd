@@ -14,11 +14,10 @@
 -- Revision:
 -- Revision 0.01 - File Created
 -- Additional Comments:
---    use case:
+--    use cases:
 --        reg being used the instr after the same reg is receiving data from a mem read
 --        branch & jump preventing unwanted instructions from being processed
 --
---    clocked to track timing of output closures
 ----------------------------------------------------------------------------------
 
 

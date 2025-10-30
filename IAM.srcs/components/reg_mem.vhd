@@ -8,13 +8,7 @@
 -- Target Devices: Basys3 Artix 7 - XC7A35T-1CPG236C
 -- Tool Versions: Vivado 2025.1
 -- Description:
---
--- Dependencies:
---
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
---
+--      collection of 32, 32-bit registers for various temp storage applications
 ----------------------------------------------------------------------------------
 
 library IEEE;

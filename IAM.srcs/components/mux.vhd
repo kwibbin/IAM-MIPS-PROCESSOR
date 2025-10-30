@@ -14,7 +14,7 @@
 -- Revision:
 -- Revision 0.01 - File Created
 -- Additional Comments:
---
+--      computes conditional data bridges based on computed select modes
 ----------------------------------------------------------------------------------
 
 library IEEE;
