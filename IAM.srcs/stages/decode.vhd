@@ -66,6 +66,11 @@ signal ctrl_flags_buf : std_logic_vector(11 downto 0); -- temp ctrl flags storag
 constant nop          : std_logic_vector(11 downto 0) := x"000";
 signal mux_packed_d   : std_logic_vector(23 downto 0);
 
+alias opcode          : std_logic_vector(5 downto 0) is instr_if(data_width - 1 downto 0);
+alias rs              : std_logic_vector(reg_i_width - 1 downto 0) is instr_if(25 downto 21);
+alias rt              : std_logic_vector(reg_i_width - 1 downto 0) is instr_if(20 downto 16);
+alias func            : std_logic_vector(5 downto 0) is instr_if(5 downto 0);
+
 begin
 
 process(pc_if, instr_if, ctrl_flags_buf)
@@ -101,8 +106,8 @@ reg_file : entity work.reg_mem(Behavioral)
         w_reg     => w_reg_wb,
         w_d       => w_d_wb,
 
-        r_reg1    => instr_if(25 downto 21),
-        r_reg2    => instr_if(20 downto 16),
+        r_reg1    => rs,
+        r_reg2    => rt,
 
         r_d1      => reg_d_1_id,
         r_d2      => reg_d_2_id
@@ -116,9 +121,9 @@ hzrd_unit : entity work.hazard_ctrl(Behavioral)
         clk        => clk,
 
         -- from id
-        opcode     => instr_if(data_width - 1 downto 26),
-        rs_rt_id   => instr_if(25 downto 16),
-        func       => instr_if(5 downto 0),
+        opcode     => opcode,
+        rs_rt_id   => rs & rt,
+        func       => func,
 
         pc_hold    => pc_hold_id,
         if_id_hold => if_id_hold_id,

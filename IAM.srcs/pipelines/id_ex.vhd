@@ -51,6 +51,8 @@ end id_ex;
 
 architecture Behavioral of id_ex is
 
+alias immediate : std_logic_vector(15 downto 0) is instr_25_0_id(15 downto 0);
+
 begin
 
 id_ex_pipeline_reg : process(clk, rst)
@@ -70,7 +72,7 @@ begin
             pc_ex               <= pc_id;
             reg_d_1_ex          <= reg_d_1_id;
             reg_d_2_ex          <= reg_d_2_id;
-            jump_branch_addr_ex <= std_logic_vector(resize(unsigned(instr_25_0_id(15 downto 0)), addr_width)); -- imm region 16 -> 32 bit
+            jump_branch_addr_ex <= std_logic_vector(resize(unsigned(immediate), addr_width)); -- imm region 16 -> 32 bit
 
         end if;
     end if;

@@ -65,6 +65,8 @@ signal pc_branch_addr   : std_logic_vector(addr_width - 1 downto 0);
 signal pc_branch_packed : std_logic_vector(addr_width * mux_n - 1 downto 0);
 signal mux1_jump_packed : std_logic_vector(addr_width * mux_n - 1 downto 0);
 
+alias addr              : std_logic_vector(magic_width - 1 downto 0) is alu_ex(magic_width - 1 downto 0);
+
 begin
 
 process(alu_z_ex, ctrl_flags_ex(3), ctrl_flags_ex(4))
@@ -124,7 +126,7 @@ data_mem : entity work.data_memory(Behavioral)
         mem_w => ctrl_flags_ex(1),
         mem_r => ctrl_flags_ex(5),
 
-        addr  => alu_ex(magic_width - 1 downto 0),
+        addr  => addr,
         w_d   => fw_mm_w_d_ex,
 
         r_d   => mem_r_d_mm

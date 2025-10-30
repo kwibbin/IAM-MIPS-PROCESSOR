@@ -81,26 +81,33 @@ signal fw_2_d                : std_logic_vector(data_width * mux_4_n - 1 downto 
 signal fw_w_d                : std_logic_vector(data_width * mux_3_n - 1 downto 0);
 signal fw_alu_1_d            : std_logic_vector(data_width - 1 downto 0);
 signal fw_alu_2_d            : std_logic_vector(data_width - 1 downto 0);
--- fw_mm_w_d_ex -- output from fw_w_d_mux goes to memory stage,
+
+alias rs                     : std_logic_vector(reg_i_width - 1 downto 0) is instr_25_0_id(25 downto 21);
+alias rt                     : std_logic_vector(reg_i_width - 1 downto 0) is instr_25_0_id(20 downto 16);
+alias rd                     : std_logic_vector(reg_i_width - 1 downto 0) is instr_25_0_id(15 downto 11);
+alias shamt                  : std_logic_vector(4 downto 0) is instr_25_0_id(10 downto 6);
+alias func                   : std_logic_vector(5 downto 0) is instr_25_0_id(5 downto 0);
 
 begin
 
 process(ctrl_flags_id)
 begin
-    w_reg_mux_sel <= 1 when ctrl_flags_id(0) = '1' else 0; -- reg_dst
+    w_reg_mux_sel <= 0 when ctrl_flags_id(0) = '1' else 1; -- reg_dst
 end process;
 
 shft_jump_branch_addr <= std_logic_vector(shift_left(unsigned(jump_branch_addr_id), 2));
 
 -- forwarding unit driven packed data
-        -- wb data 95:64, mm data 63:32, reg 1 read data 31:0
+-- wb data 95:64, mm data 63:32, reg 1 read data 31:0
 fw_1_d <= w_d_wb & w_d_mm & reg_d_1_id;
-        -- (branch offset or imm) << 2 127:96, wb data 95:64, mm data 63:32, reg 2 read data 31:0
+
+-- (branch offset or imm) << 2 127:96, wb data 95:64, mm data 63:32, reg 2 read data 31:0
 fw_2_d <= std_logic_vector(resize(unsigned(jump_branch_addr_id), data_width)) & w_d_wb & w_d_mm & reg_d_2_id;
-        -- wb data 95:64, mm data 63:32, reg 2 read data 31:0
+
+-- wb data 95:64, mm data 63:32, reg 2 read data 31:0
 fw_w_d <= w_d_wb & w_d_mm & reg_d_2_id;
 
-w_reg_mux_d <= instr_25_0_id(15 downto 11) & instr_25_0_id(20 downto 16); -- rd 9:5 rt 4:0
+w_reg_mux_d <= rt & rd; -- rt 9:5 rd 4:0
 
 process(pc_id, shft_jump_branch_addr, ctrl_flags_id)
 begin
@@ -127,7 +134,7 @@ execute_adder : entity work.adder(Behavioral)
 alu_ctrl_unit : entity work.alu_ctrl(Behavioral)
     port map(
         alu_op_in  => ctrl_flags_id(8 downto 5),
-        func       => instr_25_0_id(5 downto 0),
+        func       => func,
 
         alu_op_out => alu_ctrl
     );
@@ -136,8 +143,8 @@ fw_unit : entity work.forwarding_unit(Behavioral)
         port map(
             jump_ex    => ctrl_flags_id(1),
             alu_src_ex => ctrl_flags_id(10),
-            reg_d_1_ex => instr_25_0_id(25 downto 21),
-            reg_d_2_ex => instr_25_0_id(20 downto 16),
+            reg_d_1_ex => rs,
+            reg_d_2_ex => rt,
 
             reg_w_mm   => reg_w_mm,
             w_reg_mm   => w_reg_mm,
@@ -193,7 +200,7 @@ alu : entity work.alu(Behavioral)
     port map(
         in_d1    => fw_alu_1_d,
         in_d2    => fw_alu_2_d,
-        shamt    => instr_25_0_id(10 downto 6),
+        shamt    => shamt,
         alu_ctrl => alu_ctrl,
 
         zero     => alu_z_ex,

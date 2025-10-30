@@ -25,7 +25,7 @@ entity mem_wb is
         reg_i_width   : positive := 5;
         addr_width    : positive := 32;
         data_width    : positive := 32
-        );
+    );
     port (
         clk           : in std_logic;
         rst           : in std_logic;
