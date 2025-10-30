@@ -32,16 +32,11 @@ entity hazard_ctrl is
     );
     port (
         clk        : in std_logic;
-        rst        : in std_logic;
 
         -- from id
         opcode     : in std_logic_vector(5 downto 0);
         rs_rt_id   : in std_logic_vector(reg_i_width * 2 - 1 downto 0);
         func       : in std_logic_vector(5 downto 0);
-
-        -- from ex
-        mem_r      : in std_logic; -- only lw and lh
-        rs_rt_ex   : in std_logic_vector(reg_i_width * 2 - 1 downto 0);
 
         -- prevent pc from moving | to if
         pc_hold    : out natural;
@@ -55,58 +50,6 @@ entity hazard_ctrl is
 end hazard_ctrl;
 
 architecture Behavioral of hazard_ctrl is
-
-type var_pkg is record
-    pc_hold_pkg    : natural;
-    if_id_hold_pkg : natural;
-    nop_ctrl_pkg   : natural;
-    timer_pkg      : natural range 0 to 2; -- 3 range for lw/lh hazards - ex (1) -> mm (2) -> wb (3, done); only need 2 for branch/jump hazards
-end record;
-
-signal out_data_pkg : var_pkg;
-
-function resolve_outputs(
-        operating_mode : natural; -- 3 for lw/lh, 2 for branch/jump, 1 for timer hold 0 for no hazard
-        in_pkg         : var_pkg
-    ) return var_pkg is
-        variable pkg   : var_pkg;
-    begin
-        case operating_mode is
-            when 0 =>
-                pkg.pc_hold_pkg    := 0;
-                pkg.if_id_hold_pkg := 0;
-                pkg.nop_ctrl_pkg   := 0;
-                pkg.timer_pkg      := 0; -- no hazard
-
-            when 1 =>
-                pkg.pc_hold_pkg    := in_pkg.pc_hold_pkg;
-                pkg.if_id_hold_pkg := in_pkg.if_id_hold_pkg;
-                pkg.nop_ctrl_pkg   := in_pkg.nop_ctrl_pkg;
-                pkg.timer_pkg      := in_pkg.timer_pkg - 1; -- reduce timer every clock cycle
-
-            when 2 =>
-                pkg.pc_hold_pkg    := 1;
-                pkg.if_id_hold_pkg := 1;
-                pkg.nop_ctrl_pkg   := 1;
-                pkg.timer_pkg      := 1; -- branch/jump
-
-            when 3 =>
-                pkg.pc_hold_pkg    := 1;
-                pkg.if_id_hold_pkg := 1;
-                pkg.nop_ctrl_pkg   := 1;
-                pkg.timer_pkg      := 2; -- lw/lh
-
-            when others =>
-                pkg.pc_hold_pkg    := 0;
-                pkg.if_id_hold_pkg := 0;
-                pkg.nop_ctrl_pkg   := 0;
-                pkg.timer_pkg      := 0;
-
-        end case;
-
-        return pkg;
-
-end function;
 
 function check_branch_jump(
         opcode_f : std_logic_vector(5 downto 0);
@@ -153,51 +96,67 @@ function check_branch_jump(
 
 end function;
 
-alias rs_id : std_logic_vector(reg_i_width - 1 downto 0) is rs_rt_id(reg_i_width * 2 - 1 downto reg_i_width);
-alias rt_id : std_logic_vector(reg_i_width - 1 downto 0) is rs_rt_id(reg_i_width - 1 downto 0);
+alias rs_id         : std_logic_vector(reg_i_width - 1 downto 0) is rs_rt_id(reg_i_width * 2 - 1 downto reg_i_width);
+alias rt_id         : std_logic_vector(reg_i_width - 1 downto 0) is rs_rt_id(reg_i_width - 1 downto 0);
 
-alias rs_ex : std_logic_vector(reg_i_width - 1 downto 0) is rs_rt_ex(reg_i_width * 2 - 1 downto reg_i_width);
-alias rt_ex : std_logic_vector(reg_i_width - 1 downto 0) is rs_rt_ex(reg_i_width - 1 downto 0);
+signal rs_ex        : std_logic_vector(reg_i_width - 1 downto 0);
+signal rt_ex        : std_logic_vector(reg_i_width - 1 downto 0);
 
-signal branch_jump_en : std_logic := '0';
+signal pc_hold_s    : natural;
+signal if_id_hold_s : natural;
+signal nop_ctrl_s   : natural;
+
+signal timer        : natural range 0 to 2 := 0;
+
+signal mem_r_ex     : natural;
 
 begin
 
-process(out_data_pkg)
+pc_hold    <= pc_hold_s;
+if_id_hold <= if_id_hold_s;
+nop_ctrl   <= nop_ctrl_s;
+
+process(clk)
 begin
-    -- pkg -> outputs
-    pc_hold    <= out_data_pkg.pc_hold_pkg;
-    if_id_hold <= out_data_pkg.if_id_hold_pkg;
-    nop_ctrl   <= out_data_pkg.nop_ctrl_pkg;
+    if rising_edge(clk) then
+        -- delayed FFs
+        mem_r_ex <= 1 when opcode = "001001" or opcode = "001011" else 0;
+        rs_ex     <= rs_id;
+        rt_ex     <= rt_id;
+    end if;
 end process;
 
-process(clk, rst)
+process(opcode, rs_rt_id, func)
 begin
-    if rst = '1' then
-            branch_jump_en <= '0';
-            out_data_pkg <= resolve_outputs(0, out_data_pkg);
+    if timer = 0 then
+        if (rs_id = rs_ex or rt_id = rt_ex) and mem_r_ex = 1 then
+            pc_hold_s    <= 1;
+            if_id_hold_s <= 1;
+            nop_ctrl_s   <= 1;
+            timer        <= 2; -- no hazard
 
-    elsif rising_edge(clk) then
-        if out_data_pkg.timer_pkg = 0 then
-            if (rs_id = rs_ex or rt_id = rt_ex) and mem_r = '1' then
-                out_data_pkg <= resolve_outputs(3, out_data_pkg);
-
-            elsif branch_jump_en = '1' then
-                out_data_pkg <= resolve_outputs(2, out_data_pkg);
-
-            else
-                out_data_pkg <= resolve_outputs(0, out_data_pkg);
-
-            end if;
+        elsif check_branch_jump(opcode, func) then
+            pc_hold_s    <= 1;
+            if_id_hold_s <= 1;
+            nop_ctrl_s   <= 1;
+            timer        <= 1; -- no hazard
 
         else
-            out_data_pkg <= resolve_outputs(1, out_data_pkg);
+            pc_hold_s    <= 0;
+            if_id_hold_s <= 0;
+            nop_ctrl_s   <= 0;
+            timer        <= 0; -- no hazard
 
         end if;
 
-        branch_jump_en <= check_branch_jump(opcode, func); -- set branch status for next
+    else
+        pc_hold_s    <= pc_hold_s;
+        if_id_hold_s <= if_id_hold_s;
+        nop_ctrl_s   <= nop_ctrl_s;
+        timer        <= timer - 1; -- no hazard
 
     end if;
+
 end process;
 
 end Behavioral;

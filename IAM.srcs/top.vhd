@@ -196,16 +196,11 @@ decode : entity work.decode(Behavioral)
     )
     port map (
         clk           => clk,
-        rst           => rst,
 
         -- ctrl_unit flag, w register, and w data | from wb
         reg_w_wb      => reg_w_wb,
         w_reg_wb      => w_reg_wb,
         w_d_wb        => w_d_wb,
-
-        -- mem_r, rs & rt | from ex
-        mem_r_ex      => ctrl_flags_ex(5),
-        rs_rt_ex      => instr_25_0_id_ex(25 downto 16),
 
         -- pc, pc + 4, and instr | from if
         pc_if         => pc_if_id,
