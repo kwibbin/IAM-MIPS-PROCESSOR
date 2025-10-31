@@ -60,7 +60,7 @@ signal ctrl_flags_buf : std_logic_vector(11 downto 0); -- temp ctrl flags storag
 constant nop          : std_logic_vector(11 downto 0) := x"000";
 signal mux_packed_d   : std_logic_vector(23 downto 0);
 
-alias opcode          : std_logic_vector(5 downto 0) is instr_if(data_width - 1 downto 0);
+alias opcode          : std_logic_vector(5 downto 0) is instr_if(data_width - 1 downto 26);
 alias rs              : std_logic_vector(reg_i_width - 1 downto 0) is instr_if(25 downto 21);
 alias rt              : std_logic_vector(reg_i_width - 1 downto 0) is instr_if(20 downto 16);
 alias func            : std_logic_vector(5 downto 0) is instr_if(5 downto 0);
