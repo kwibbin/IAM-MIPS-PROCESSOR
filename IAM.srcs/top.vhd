@@ -55,14 +55,14 @@ signal pc_p4_if_id            : std_logic_vector(addr_width - 1 downto 0);
 signal instr_if_id            : std_logic_vector(data_width - 1 downto 0);
 
 -- decode sigs ----------------------------------------------------------------
--- to if
+-- hazard ctrl flag, pc + 4 | to if
 signal pc_hold_id             : natural range 0 to 1;
 signal pc_p4_id               : std_logic_vector(addr_width - 1 downto 0);
 
--- to id/ex
+-- hazard ctrl flag | to if/id
 signal if_id_hold_id          : natural range 0 to 1;
 
--- ctrl_unit flags, instr[20:0], pc, pc + 4, reg data 1/2, jump/branch addr out | to ex
+-- ctrl_unit flags, instr[25:0], pc, reg data 1/2 | to ex
 signal ctrl_flags_id          : std_logic_vector(11 downto 0);
 signal instr_25_0_id          : std_logic_vector(25 downto 0);
 signal pc_id                  : std_logic_vector(addr_width - 1 downto 0);
@@ -79,7 +79,7 @@ signal reg_d_2_id_ex          : std_logic_vector(data_width - 1 downto 0);
 signal jump_branch_addr_id_ex : std_logic_vector(addr_width - 1 downto 0);
 
 -- execute sigs ---------------------------------------------------------------
--- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu computation, reg data 2, w reg | to mem
+-- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu calculation, reg data 2, forwarding data, w reg | to mem
 signal alu_z_ex               : std_logic;
 signal ctrl_flags_ex          : std_logic_vector(5 downto 0);
 signal branch_addr_ex         : std_logic_vector(addr_width - 1 downto 0);
@@ -106,7 +106,7 @@ signal branch_mm              : natural range 0 to mux_n - 1;
 signal jump_mm                : natural range 0 to mux_n - 1;
 signal return_addr_mm         : std_logic_vector(addr_width - 1 downto 0);
 
--- mem r data, alu computation, w reg
+-- ctrl unit flags, mem r data, alu calculation, w reg | to wb
 signal mem_to_reg_mm          : std_logic;
 signal reg_w_mm               : std_logic;
 signal mem_r_d_mm             : std_logic_vector(data_width - 1 downto 0);
@@ -176,12 +176,12 @@ if_id_reg : entity work.if_id(Behavioral)
         rst           => rst,
         if_id_hold_id => if_id_hold_id,
 
-        -- fetch in
+        -- fetch out
         pc_if         => pc_if,
         pc_p4_if      => pc_p4_if,
         instr_if      => instr_if,
 
-        -- decode out
+        -- decode in
         pc_id         => pc_if_id,
         pc_p4_id      => pc_p4_if_id,
         instr_id      => instr_if_id
@@ -207,14 +207,14 @@ decode : entity work.decode(Behavioral)
         pc_p4_if      => pc_p4_if_id,
         instr_if      => instr_if_id,
 
-        -- hazard ctrl flag, pc + 4| to if
+        -- hazard ctrl flag, pc + 4 | to if
         pc_hold_id    => pc_hold_id,
         pc_p4_id      => pc_p4_id,
 
         -- hazard ctrl flag | to if/id
         if_id_hold_id => if_id_hold_id,
 
-        -- ctrl_unit flags, instr[20:0], pc, reg data 1/2, jump/branch addr out | to ex
+        -- ctrl_unit flags, instr[25:0], pc, reg data 1/2 | to ex
         ctrl_flags_id => ctrl_flags_id,
         instr_25_0_id => instr_25_0_id,
         pc_id         => pc_id,
@@ -233,14 +233,14 @@ id_ex_reg : entity work.id_ex(Behavioral)
         clk                 => clk,
         rst                 => rst,
 
-        -- ctrl_unit flags, instr[20:0], pc, reg_d_1/2, branch/j addr | from id
+        -- decode out
         ctrl_flags_id       => ctrl_flags_id,
         pc_id               => pc_id,
         reg_d_1_id          => reg_d_1_id,
         reg_d_2_id          => reg_d_2_id,
         instr_25_0_id       => instr_25_0_id,
 
-        -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu computation, reg data 2, w reg | to mem
+        -- execute in
         ctrl_flags_ex       => ctrl_flags_id_ex,
         instr_25_0_ex       => instr_25_0_id_ex,
         pc_ex               => pc_id_ex,
@@ -257,7 +257,7 @@ execute : entity work.execute(Behavioral)
         reg_i_width, addr_width, data_width
     )
     port map (
-        -- ctrl_unit flags, instr[20:0], pc, reg_d_1/2, branch/j addr | from id
+        -- ctrl_unit flags, instr[25:0], pc, reg_d_1/2, branch/j addr | from id
         ctrl_flags_id       => ctrl_flags_id_ex,
         instr_25_0_id       => instr_25_0_id_ex,
         pc_id               => pc_id_ex,
@@ -270,12 +270,12 @@ execute : entity work.execute(Behavioral)
         w_reg_mm            => w_reg_mm,
         w_d_mm              => alu_mm,
 
-        -- reg file w reg | from wb
+        -- ctrl unit flag, reg file w reg, w data | from wb
         reg_w_wb            => reg_w_wb,
         w_reg_wb            => w_reg_wb,
         w_d_wb              => w_d_wb,
 
-        -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu computation, reg data 2, w reg | to mem
+        -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu calculation, reg data 2, forwarding data, w reg | to mem
         alu_z_ex            => alu_z_ex,
         ctrl_flags_ex       => ctrl_flags_ex,
         branch_addr_ex      => branch_addr_ex,
@@ -297,7 +297,7 @@ ex_mem_reg : entity work.ex_mem(Behavioral)
         clk            => clk,
         rst            => rst,
 
-        --execute
+        -- execute out
         alu_z_ex       => alu_z_ex,
         ctrl_flags_ex  => ctrl_flags_ex,
         branch_addr_ex => branch_addr_ex,
@@ -307,7 +307,7 @@ ex_mem_reg : entity work.ex_mem(Behavioral)
         fw_mm_w_d_ex   => fw_mm_w_d_ex,
         w_reg_ex       => w_reg_ex,
 
-        -- mem
+        -- memory in
         alu_z_mm       => alu_z_ex_mm,
         ctrl_flags_mm  => ctrl_flags_ex_mm,-- mem_r 5, branch 4, jump 3, mem_to_reg 2, mem_w 1, reg_w 0
         pc_mm          => pc_ex_mm,
@@ -328,7 +328,7 @@ memory : entity work.memory(Behavioral)
     port map (
         clk            => clk,
 
-        -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu computation, reg data 2, w reg | from ex
+        -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu calculation, forwarding data, w reg | from ex
         alu_z_ex       => alu_z_ex_mm,
         ctrl_flags_ex  => ctrl_flags_ex_mm,-- mem_r 5, branch 4, jump 3, mem_to_reg 2, mem_w 1, reg_w 0
         branch_addr_ex => branch_addr_ex_mm,
@@ -343,7 +343,7 @@ memory : entity work.memory(Behavioral)
         jump_mm        => jump_mm,
         return_addr_mm => return_addr_mm,
 
-        -- mem r data, alu computation, w reg
+        -- ctrl unit flags, mem r data, alu calculation, w reg | to wb
         mem_to_reg_mm  => mem_to_reg_mm,
         reg_w_mm       => reg_w_mm,
         mem_r_d_mm     => mem_r_d_mm,
@@ -362,14 +362,14 @@ mem_wb_reg : entity work.mem_wb(Behavioral)
         clk           => clk,
         rst           => rst,
 
-        -- mem
+        -- memory out
         mem_to_reg_mm => mem_to_reg_mm,
         reg_w_mm      => reg_w_mm,
         mem_r_d_mm    => mem_r_d_mm,
         alu_mm        => alu_mm,
         w_reg_mm      => w_reg_mm,
 
-        -- write back
+        -- write back in
         mem_to_reg_wb => mem_to_reg_mm_wb,
         reg_w_wb      => reg_w_mm_wb,
         mem_r_d_wb    => mem_r_d_mm_wb,
@@ -385,7 +385,7 @@ write_back : entity work.write_back(Behavioral)
             mux_n, reg_i_width, data_width
     )
     port map (
-        -- ctrl_unit flags, mem r data, alu computation, w reg | from mem
+        -- ctrl_unit flags, mem r data, alu calculation, w reg | from mm
         mem_to_reg_mm => mem_to_reg_mm_wb,
         reg_w_mm      => reg_w_mm_wb,
         mem_r_d_mm    => mem_r_d_mm_wb,

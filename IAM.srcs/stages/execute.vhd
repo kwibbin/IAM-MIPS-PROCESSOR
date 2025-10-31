@@ -23,7 +23,7 @@ entity execute is
         data_width          : positive := 32
     );
     port (
-        -- ctrl_unit flags, instr[20:0], pc, reg_d_1/2, branch/j addr | from id
+        -- ctrl_unit flags, instr[25:0], pc, reg_d_1/2, branch/j addr | from id
         ctrl_flags_id       : in std_logic_vector(11 downto 0);
         instr_25_0_id       : in std_logic_vector(25 downto 0);
         pc_id               : in std_logic_vector(addr_width - 1 downto 0);
@@ -31,17 +31,17 @@ entity execute is
         reg_d_2_id          : in std_logic_vector(data_width - 1 downto 0);
         jump_branch_addr_id : in std_logic_vector(addr_width - 1 downto 0);
 
-        -- ctrl_unit flag, w_reg_mm | from mm
+        -- ctrl_unit flag, reg file w reg | from mm
         reg_w_mm            : in std_logic;
         w_reg_mm            : in std_logic_vector(4 downto 0);
         w_d_mm              : in std_logic_vector(data_width - 1 downto 0);
 
-        -- ctrl_unit flag, w_reg_wb | from wb
+        -- ctrl unit flag, reg file w reg, w data | from wb
         reg_w_wb            : in std_logic;
         w_reg_wb            : in std_logic_vector(4 downto 0);
         w_d_wb              : in std_logic_vector(data_width - 1 downto 0);
 
-        -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu computation, fw mux mm data, w reg | to mm
+        -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu calculation, reg data 2, forwarding data, w reg | to mem
         alu_z_ex            : out std_logic;
         ctrl_flags_ex       : out std_logic_vector(5 downto 0);
         branch_addr_ex      : out std_logic_vector(addr_width - 1 downto 0);

@@ -37,14 +37,14 @@ entity decode is
         pc_p4_if            : in std_logic_vector(addr_width - 1 downto 0);
         instr_if            : in std_logic_vector(data_width - 1 downto 0);
 
-        -- hazard ctrl flag, pc + 4| to if
+        -- hazard ctrl flag, pc + 4 | to if
         pc_hold_id          : out natural range 0 to 1;
         pc_p4_id            : out std_logic_vector(addr_width - 1 downto 0);
 
         -- hazard ctrl flag | to if/id
         if_id_hold_id       : out natural range 0 to 1;
 
-        -- ctrl_unit flags, instr[20:0], pc, pc + 4, reg data 1/2, jump/branch addr out | to ex
+        -- ctrl_unit flags, instr[25:0], pc, reg data 1/2 | to ex
         ctrl_flags_id       : out std_logic_vector(11 downto 0);
         instr_25_0_id       : out std_logic_vector(25 downto 0);
         pc_id               : out std_logic_vector(addr_width - 1 downto 0);
