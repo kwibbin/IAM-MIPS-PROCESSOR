@@ -55,8 +55,11 @@ architecture Behavioral of hazard_ctrl is
 alias rs_id         : std_logic_vector(reg_i_width - 1 downto 0) is rs_rt_id(reg_i_width * 2 - 1 downto reg_i_width);
 alias rt_id         : std_logic_vector(reg_i_width - 1 downto 0) is rs_rt_id(reg_i_width - 1 downto 0);
 
+signal mem_r_ex     : natural;
 signal rs_ex        : std_logic_vector(reg_i_width - 1 downto 0);
 signal rt_ex        : std_logic_vector(reg_i_width - 1 downto 0);
+signal opcode_ex    : std_logic_vector(5 downto 0);
+signal func_ex      : std_logic_vector(5 downto 0);
 
 signal pc_hold_s    : natural;
 signal if_id_hold_s : natural;
@@ -64,10 +67,9 @@ signal nop_ctrl_s   : natural;
 
 signal timer        : natural range 0 to 2 := 0;
 
-signal mem_r_ex     : natural;
-
 begin
 
+-- outputs
 pc_hold    <= pc_hold_s;
 if_id_hold <= if_id_hold_s;
 nop_ctrl   <= nop_ctrl_s;
@@ -75,16 +77,18 @@ nop_ctrl   <= nop_ctrl_s;
 process(clk)
 begin
     if rising_edge(clk) then
-        -- delayed FFs
-        mem_r_ex <= 1 when opcode = "001001" or opcode = "001011" else 0;
-        rs_ex    <= rs_id;
-        rt_ex    <= rt_id;
+        -- off-by-one regs to store previous instr details
+        mem_r_ex  <= 1 when opcode = "001001" or opcode = "001011" else 0;
+        rs_ex     <= rs_id;
+        rt_ex     <= rt_id;
+        opcode_ex <= opcode;
+        func_ex   <= func;
 
-        -- clocked timer resolution
+        -- timer resolution
         if timer = 0 then
             if (rs_id = rs_ex or rt_id = rt_ex) and mem_r_ex = 1 then
                 timer <= 2; -- load data hazard
-            elsif check_branch_jump(opcode, func) then -- from hzrd_helper
+            elsif check_branch_jump(opcode_ex, func_ex) then -- from hzrd_helper
                 timer <= 1; -- jump or branch control hazard
             else
                 timer <= 0; -- no hazard
@@ -98,30 +102,21 @@ end process;
 process(opcode, rs_rt_id, func, timer)
 begin
     if timer = 0 then
-        if (rs_id = rs_ex or rt_id = rt_ex) and mem_r_ex = 1 then
+        -- (load data hazard) or (jump/branch control hazard)
+        if ((rs_id = rs_ex or rt_id = rt_ex) and mem_r_ex = 1) or (check_branch_jump(opcode_ex, func_ex)) = '1' then
             pc_hold_s    <= 1;
             if_id_hold_s <= 1;
             nop_ctrl_s   <= 1;
-
-        elsif check_branch_jump(opcode, func) then -- from hzrd_helper
-            pc_hold_s    <= 1;
-            if_id_hold_s <= 1;
-            nop_ctrl_s   <= 1;
-
         else
             pc_hold_s    <= 0;
             if_id_hold_s <= 0;
             nop_ctrl_s   <= 0;
-
         end if;
-
     else
         pc_hold_s    <= pc_hold_s;
         if_id_hold_s <= if_id_hold_s;
         nop_ctrl_s   <= nop_ctrl_s;
-
     end if;
-
 end process;
 
 end Behavioral;
