@@ -25,7 +25,6 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-library work;
 use work.hzrd_helper.all;
 
 entity hazard_ctrl is
@@ -78,31 +77,41 @@ begin
     if rising_edge(clk) then
         -- delayed FFs
         mem_r_ex <= 1 when opcode = "001001" or opcode = "001011" else 0;
-        rs_ex     <= rs_id;
-        rt_ex     <= rt_id;
+        rs_ex    <= rs_id;
+        rt_ex    <= rt_id;
+
+        -- clocked timer resolution
+        if timer = 0 then
+            if (rs_id = rs_ex or rt_id = rt_ex) and mem_r_ex = 1 then
+                timer <= 2; -- load data hazard
+            elsif check_branch_jump(opcode, func) then -- from hzrd_helper
+                timer <= 1; -- jump or branch control hazard
+            else
+                timer <= 0; -- no hazard
+            end if;
+        else
+            timer <= timer - 1; -- counter
+        end if;
     end if;
 end process;
 
-process(opcode, rs_rt_id, func)
+process(opcode, rs_rt_id, func, timer)
 begin
     if timer = 0 then
         if (rs_id = rs_ex or rt_id = rt_ex) and mem_r_ex = 1 then
             pc_hold_s    <= 1;
             if_id_hold_s <= 1;
             nop_ctrl_s   <= 1;
-            timer        <= 2; -- no hazard
 
-        elsif check_branch_jump(opcode, func) then
+        elsif check_branch_jump(opcode, func) then -- from hzrd_helper
             pc_hold_s    <= 1;
             if_id_hold_s <= 1;
             nop_ctrl_s   <= 1;
-            timer        <= 1; -- no hazard
 
         else
             pc_hold_s    <= 0;
             if_id_hold_s <= 0;
             nop_ctrl_s   <= 0;
-            timer        <= 0; -- no hazard
 
         end if;
 
@@ -110,7 +119,6 @@ begin
         pc_hold_s    <= pc_hold_s;
         if_id_hold_s <= if_id_hold_s;
         nop_ctrl_s   <= nop_ctrl_s;
-        timer        <= timer - 1; -- no hazard
 
     end if;
 
