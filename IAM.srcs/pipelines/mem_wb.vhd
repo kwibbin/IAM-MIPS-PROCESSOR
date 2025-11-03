@@ -46,22 +46,19 @@ begin
 
 mem_wb_pipeline_reg : process(clk, rst)
 begin
+    if rst = '1' then
+        mem_to_reg_wb <= '0';
+        reg_w_wb      <= '0';
+        mem_r_d_wb    <= (others => '0');
+        alu_wb        <= (others => '0');
+        w_reg_wb      <= (others => '0');
+    end if;
     if rising_edge(clk) then
-        if rst = '1' then
-            mem_to_reg_wb <= '0';
-            reg_w_wb      <= '0';
-            mem_r_d_wb    <= (others => '0');
-            alu_wb        <= (others => '0');
-            w_reg_wb      <= (others => '0');
-
-        else
-            mem_to_reg_wb <= mem_to_reg_mm;
-            reg_w_wb      <= reg_w_mm;
-            mem_r_d_wb    <= mem_r_d_mm;
-            alu_wb        <= alu_mm;
-            w_reg_wb      <= w_reg_mm;
-
-        end if;
+        mem_to_reg_wb <= mem_to_reg_mm;
+        reg_w_wb      <= reg_w_mm;
+        mem_r_d_wb    <= mem_r_d_mm;
+        alu_wb        <= alu_mm;
+        w_reg_wb      <= w_reg_mm;
     end if;
 end process mem_wb_pipeline_reg;
 

@@ -52,28 +52,25 @@ begin
 
 ex_mem_pipeline_reg : process(clk, rst)
 begin
+    if rst = '1' then
+        alu_z_mm       <= '0';
+        ctrl_flags_mm  <= (others => '0');
+        pc_mm          <= (others => '0');
+        branch_addr_mm <= (others => '0');
+        jump_addr_mm   <= (others => '0');
+        alu_mm         <= (others => '0');
+        fw_mm_w_d_mm   <= (others => '0');
+        w_reg_in_mm    <= (others => '0');
+    end if;
     if rising_edge(clk) then
-        if rst = '1' then
-            alu_z_mm       <= '0';
-            ctrl_flags_mm  <= (others => '0');
-            pc_mm          <= (others => '0');
-            branch_addr_mm <= (others => '0');
-            jump_addr_mm   <= (others => '0');
-            alu_mm         <= (others => '0');
-            fw_mm_w_d_mm   <= (others => '0');
-            w_reg_in_mm    <= (others => '0');
-
-        else
-            alu_z_mm       <= alu_z_ex;
-            ctrl_flags_mm  <= ctrl_flags_ex;
-            pc_mm          <= pc_ex;
-            branch_addr_mm <= branch_addr_ex;
-            jump_addr_mm   <= jump_addr_ex;
-            alu_mm         <= alu_ex;
-            fw_mm_w_d_mm   <= fw_mm_w_d_ex;
-            w_reg_in_mm    <= w_reg_ex;
-
-        end if;
+        alu_z_mm       <= alu_z_ex;
+        ctrl_flags_mm  <= ctrl_flags_ex;
+        pc_mm          <= pc_ex;
+        branch_addr_mm <= branch_addr_ex;
+        jump_addr_mm   <= jump_addr_ex;
+        alu_mm         <= alu_ex;
+        fw_mm_w_d_mm   <= fw_mm_w_d_ex;
+        w_reg_in_mm    <= w_reg_ex;
     end if;
 end process ex_mem_pipeline_reg;
 

@@ -46,18 +46,15 @@ begin
 
 if_id_pipeline_reg : process(clk, rst)
 begin
-    if rising_edge(clk) then
-        if rst = '1' then
+    if rst = '1' then
             pc_id    <= (others => '0');
             pc_p4_id <= (others => '0');
             instr_id <= (others => '0');
-
-        elsif if_id_hold_id /= 1 then
-            pc_id    <= pc_if;
-            pc_p4_id <= pc_p4_if;
-            instr_id <= instr_if;
-
-        end if;
+    end if;
+    if rising_edge(clk) and if_id_hold_id /= 1 then
+        pc_id    <= pc_if;
+        pc_p4_id <= pc_p4_if;
+        instr_id <= instr_if;
     end if;
 end process if_id_pipeline_reg;
 

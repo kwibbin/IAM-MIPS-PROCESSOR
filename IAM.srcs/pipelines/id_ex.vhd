@@ -51,24 +51,21 @@ begin
 
 id_ex_pipeline_reg : process(clk, rst)
 begin
+    if rst = '1' then
+        ctrl_flags_ex       <= (others => '0');
+        instr_25_0_ex       <= (others => '0');
+        pc_ex               <= (others => '0');
+        reg_d_1_ex          <= (others => '0');
+        reg_d_2_ex          <= (others => '0');
+        jump_branch_addr_ex <= (others => '0');
+    end if;
     if rising_edge(clk) then
-        if rst = '1' then
-            ctrl_flags_ex       <= (others => '0');
-            instr_25_0_ex       <= (others => '0');
-            pc_ex               <= (others => '0');
-            reg_d_1_ex          <= (others => '0');
-            reg_d_2_ex          <= (others => '0');
-            jump_branch_addr_ex <= (others => '0');
-
-        else
-            ctrl_flags_ex       <= ctrl_flags_id;
-            instr_25_0_ex       <= instr_25_0_id;
-            pc_ex               <= pc_id;
-            reg_d_1_ex          <= reg_d_1_id;
-            reg_d_2_ex          <= reg_d_2_id;
-            jump_branch_addr_ex <= std_logic_vector(resize(unsigned(immediate), addr_width)); -- imm region 16 -> 32 bit
-
-        end if;
+        ctrl_flags_ex       <= ctrl_flags_id;
+        instr_25_0_ex       <= instr_25_0_id;
+        pc_ex               <= pc_id;
+        reg_d_1_ex          <= reg_d_1_id;
+        reg_d_2_ex          <= reg_d_2_id;
+        jump_branch_addr_ex <= std_logic_vector(resize(unsigned(immediate), addr_width)); -- imm region 16 -> 32 bit
     end if;
 end process id_ex_pipeline_reg;
 
