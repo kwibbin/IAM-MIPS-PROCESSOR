@@ -56,7 +56,6 @@ alias rs_id         : std_logic_vector(reg_i_width - 1 downto 0) is rs_rt_id(reg
 alias rt_id         : std_logic_vector(reg_i_width - 1 downto 0) is rs_rt_id(reg_i_width - 1 downto 0);
 
 signal mem_r_ex     : natural;
-signal rs_ex        : std_logic_vector(reg_i_width - 1 downto 0);
 signal rt_ex        : std_logic_vector(reg_i_width - 1 downto 0);
 signal opcode_ex    : std_logic_vector(5 downto 0);
 signal func_ex      : std_logic_vector(5 downto 0);
@@ -79,14 +78,13 @@ begin
     if rising_edge(clk) then
         -- off-by-one regs to store previous instr details
         mem_r_ex  <= 1 when opcode = "001001" or opcode = "001011" else 0;
-        rs_ex     <= rs_id;
         rt_ex     <= rt_id;
         opcode_ex <= opcode;
         func_ex   <= func;
 
         -- timer resolution
         if timer = 0 then
-            if (rs_id = rs_ex or rt_id = rt_ex) and mem_r_ex = 1 then
+            if (rs_id = rt_ex or rt_id = rt_ex) and mem_r_ex = 1 then -- only care about destination reg of lw instr
                 timer <= 2; -- load data hazard
             elsif check_branch_jump(opcode_ex, func_ex) then -- from hzrd_helper
                 timer <= 1; -- jump or branch control hazard
@@ -103,7 +101,7 @@ process(opcode, rs_rt_id, func, timer)
 begin
     if timer = 0 then
         -- (load data hazard) or (jump/branch control hazard)
-        if ((rs_id = rs_ex or rt_id = rt_ex) and mem_r_ex = 1) or (check_branch_jump(opcode_ex, func_ex)) = '1' then
+        if ((rs_id = rt_ex or rt_id = rt_ex) and mem_r_ex = 1) or (check_branch_jump(opcode_ex, func_ex)) = '1' then
             pc_hold_s    <= 1;
             if_id_hold_s <= 1;
             nop_ctrl_s   <= 1;
