@@ -67,12 +67,9 @@ alias func            : std_logic_vector(5 downto 0) is instr_if(5 downto 0);
 
 begin
 
-process(pc_if, instr_if, ctrl_flags_buf)
-begin
-    pc_id         <= pc_if;
-    instr_25_0_id <= instr_if(25 downto 0);
-    mux_packed_d  <= nop & ctrl_flags_buf;
-end process;
+pc_id         <= pc_if;
+instr_25_0_id <= instr_if(25 downto 0);
+mux_packed_d  <= nop & ctrl_flags_buf;
 
 -- to if
 pc_p4_id <= pc_p4_if;

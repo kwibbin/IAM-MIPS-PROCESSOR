@@ -101,18 +101,17 @@ fw_2_d <= std_logic_vector(resize(unsigned(jump_branch_addr_id), data_width)) & 
 -- wb data 95:64, mm data 63:32, reg 2 read data 31:0
 fw_w_d <= w_d_wb & w_d_mm & reg_d_2_id;
 
-w_reg_mux_d <= rt & rd; -- rt 9:5 rd 4:0
+-- rt 9:5 rd 4:0
+w_reg_mux_d <= rt & rd;
 
-process(pc_id, shft_jump_branch_addr, ctrl_flags_id)
-begin
-    pc_ex         <= pc_id;
-    jump_addr_ex  <= shft_jump_branch_addr;
-    -- pack necessary ctrl flags
-    ctrl_flags_ex <= ctrl_flags_id(3 downto 1) -- mem_r 5, branch 4, jump 3
-                   & ctrl_flags_id(4) -- mem_to_reg 2
-                   & ctrl_flags_id(9) -- mem_w 1
-                   & ctrl_flags_id(11); -- reg_w 0
-end process;
+pc_ex         <= pc_id;
+jump_addr_ex  <= shft_jump_branch_addr;
+
+-- pack necessary ctrl flags
+ctrl_flags_ex <= ctrl_flags_id(3 downto 1) -- mem_r 5, branch 4, jump 3
+               & ctrl_flags_id(4) -- mem_to_reg 2
+               & ctrl_flags_id(9) -- mem_w 1
+               & ctrl_flags_id(11); -- reg_w 0
 
 execute_adder : entity work.adder(Behavioral)
     generic map(
