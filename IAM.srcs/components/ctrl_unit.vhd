@@ -144,7 +144,7 @@ begin
                     branch     <= '0';
                     mem_r      <= '1';
                     mem_to_reg <= '1';
-                    alu_op     <= "0000";
+                    alu_op     <= "0001";
                     mem_w      <= '0';
                     alu_src    <= '1';
                     reg_w      <= '1';
@@ -155,7 +155,7 @@ begin
                     branch     <= '0';
                     mem_r      <= '0';
                     mem_to_reg <= '0';
-                    alu_op     <= "0000";
+                    alu_op     <= "0001";
                     mem_w      <= '1';
                     alu_src    <= '1';
                     reg_w      <= '0';
@@ -166,7 +166,7 @@ begin
                     branch     <= '0';
                     mem_r      <= '1';
                     mem_to_reg <= '1';
-                    alu_op     <= "0000";
+                    alu_op     <= "0001";
                     mem_w      <= '0';
                     alu_src    <= '1';
                     reg_w      <= '1';
@@ -178,7 +178,7 @@ begin
                     branch     <= '0';
                     mem_r      <= '0';
                     mem_to_reg <= '0';
-                    alu_op     <= "0000";
+                    alu_op     <= "0001";
                     mem_w      <= '1';
                     alu_src    <= '1';
                     reg_w      <= '0';
