@@ -69,3 +69,36 @@ package body hzrd_helper is
 
     end function;
 end package body hzrd_helper;
+
+
+
+package cond_logic_helpers is
+    -- calculate branch or jump hazard
+    function check_branch_jump(
+        branch_mm  : natural range 0 to 1;
+        jump_mm    : natural range 0 to 1;
+        pc_hold_id : natural range 0 to 1
+    ) return natural;
+end package cond_logic_helpers;
+
+package body cond_logic_helpers is
+    function check_branch_jump(
+        branch_mm  : natural range 0 to 1;
+        jump_mm    : natural range 0 to 1;
+        pc_hold_id : natural range 0 to 1
+    ) return natural is
+        variable mux_sel : natural range 0 to 2;
+    begin
+
+        if branch_mm = 1 or jump_mm = 1 then
+            mux_sel := 2;
+        elsif pc_hold_id = 1 then
+            mux_sel := 1;
+        else
+            mux_sel := 0;
+        end if;
+
+        return mux_sel;
+
+    end function;
+end package body cond_logic_helpers;

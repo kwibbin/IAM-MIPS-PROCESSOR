@@ -96,7 +96,7 @@ shft_jump_branch_addr <= std_logic_vector(shift_left(unsigned(jump_branch_addr_i
 fw_1_d <= w_d_wb & w_d_mm & reg_d_1_id;
 
 -- (branch offset or imm) << 2 127:96, wb data 95:64, mm data 63:32, reg 2 read data 31:0
-fw_2_d <= std_logic_vector(resize(unsigned(jump_branch_addr_id), data_width)) & w_d_wb & w_d_mm & reg_d_2_id;
+fw_2_d <= shft_jump_branch_addr & w_d_wb & w_d_mm & reg_d_2_id;
 
 -- wb data 95:64, mm data 63:32, reg 2 read data 31:0
 fw_w_d <= w_d_wb & w_d_mm & reg_d_2_id;

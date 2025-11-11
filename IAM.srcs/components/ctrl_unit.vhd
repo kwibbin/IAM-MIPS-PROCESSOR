@@ -69,7 +69,7 @@ begin
                     mem_to_reg <= '0';
                     alu_op     <= "0010";
                     mem_w      <= '0';
-                    alu_src    <= '1';
+                    alu_src    <= '0';
                     reg_w      <= '0';
 
                     when "000011" => -- bneq
@@ -80,7 +80,7 @@ begin
                     mem_to_reg <= '0';
                     alu_op     <= "1001";
                     mem_w      <= '0';
-                    alu_src    <= '1';
+                    alu_src    <= '0';
                     reg_w      <= '0';
 
                     when "000100" => -- beqz
@@ -91,7 +91,7 @@ begin
                     mem_to_reg <= '0';
                     alu_op     <= "1010";
                     mem_w      <= '0';
-                    alu_src    <= '1';
+                    alu_src    <= '0';
                     reg_w      <= '0';
 
                     when "000101" => -- bltz
@@ -102,7 +102,7 @@ begin
                     mem_to_reg <= '0';
                     alu_op     <= "1011";
                     mem_w      <= '0';
-                    alu_src    <= '1';
+                    alu_src    <= '0';
                     reg_w      <= '0';
 
                     when "000110" => -- bgtz
@@ -113,7 +113,7 @@ begin
                     mem_to_reg <= '0';
                     alu_op     <= "1100";
                     mem_w      <= '0';
-                    alu_src    <= '1';
+                    alu_src    <= '0';
                     reg_w      <= '0';
 
                     when "000111" => -- blt
@@ -124,7 +124,7 @@ begin
                     mem_to_reg <= '0';
                     alu_op     <= "1101";
                     mem_w      <= '0';
-                    alu_src    <= '1';
+                    alu_src    <= '0';
                     reg_w      <= '0';
 
                     when "001000" => -- bgt
@@ -135,7 +135,7 @@ begin
                     mem_to_reg <= '0';
                     alu_op     <= "1110";
                     mem_w      <= '0';
-                    alu_src    <= '1';
+                    alu_src    <= '0';
                     reg_w      <= '0';
 
                     when "001001" => -- lw

@@ -16,25 +16,26 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity if_id is
     generic (
-        mux_n         : positive := 2;
-        addr_width    : positive := 32;
-        data_width    : positive := 32;
-        alignment     : std_logic_vector(3 downto 0) := "0100"
+        mux_n           : positive := 2;
+        addr_width      : positive := 32;
+        data_width      : positive := 32;
+        alignment       : std_logic_vector(3 downto 0) := "0100"
     );
     port (
-        clk           : in std_logic;
-        rst           : in std_logic;
-        if_id_hold_id : in natural range 0 to 1;
+        clk             : in std_logic;
+        rst             : in std_logic;
+        if_id_hold_id   : in natural range 0 to 1;
 
         -- fetch
-        pc_if         : in std_logic_vector(addr_width - 1 downto 0);
-        pc_p4_if      : in std_logic_vector(addr_width - 1 downto 0);
-        instr_if      : in std_logic_vector(data_width - 1 downto 0);
+        hold_release_if : in natural range 0 to 1;
+        pc_if           : in std_logic_vector(addr_width - 1 downto 0);
+        pc_p4_if        : in std_logic_vector(addr_width - 1 downto 0);
+        instr_if        : in std_logic_vector(data_width - 1 downto 0);
 
         -- decode
-        pc_id         : out std_logic_vector(addr_width - 1 downto 0);
-        pc_p4_id      : out std_logic_vector(addr_width - 1 downto 0);
-        instr_id      : out std_logic_vector(data_width - 1 downto 0)
+        pc_id           : out std_logic_vector(addr_width - 1 downto 0);
+        pc_p4_id        : out std_logic_vector(addr_width - 1 downto 0);
+        instr_id        : out std_logic_vector(data_width - 1 downto 0)
     );
 end if_id;
 
@@ -47,11 +48,11 @@ begin
 if_id_pipeline_reg : process(clk, rst)
 begin
     if rst = '1' then
-            pc_id    <= (others => '0');
-            pc_p4_id <= (others => '0');
-            instr_id <= (others => '0');
+        pc_id    <= (others => '0');
+        pc_p4_id <= (others => '0');
+        instr_id <= (others => '0');
     end if;
-    if rising_edge(clk) and if_id_hold_id /= 1 then
+    if rising_edge(clk) and (if_id_hold_id /= 1 or hold_release_if = 1) then -- allow hold_release_if to override hold
         pc_id    <= pc_if;
         pc_p4_id <= pc_p4_if;
         instr_id <= instr_if;

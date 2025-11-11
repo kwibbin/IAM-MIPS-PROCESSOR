@@ -43,6 +43,9 @@ architecture Behavioral of top is
 signal rst                    : std_logic;
 
 -- fetch sigs -----------------------------------------------------------------
+-- hzrd hold early release indicator for branch or jump events | to if/id
+signal hold_release_if        : natural range 0 to 1;
+
 -- pc, pc + 4, instr[31:0] | to id
 signal pc_if                  : std_logic_vector(addr_width - 1 downto 0);
 signal pc_p4_if               : std_logic_vector(addr_width - 1 downto 0);
@@ -158,6 +161,9 @@ fetch_stage : entity work.fetch(Behavioral)
         pc_p4_id         => pc_p4_id,
         pc_hold          => pc_id,
 
+        -- hzrd hold early release indicator for branch or jump events | to if/id
+        hold_release_if  => hold_release_if,
+
         -- pc, pc + 4, instr[31:0] | to id
         pc_if            => pc_if,
         pc_p4_if         => pc_p4_if,
@@ -172,19 +178,21 @@ if_id_reg : entity work.if_id(Behavioral)
         mux_n, addr_width, data_width, alignment
     )
     port map (
-        clk           => clk,
-        rst           => rst,
-        if_id_hold_id => if_id_hold_id,
+        clk              => clk,
+        rst              => rst,
+
+        if_id_hold_id    => if_id_hold_id,
 
         -- fetch out
-        pc_if         => pc_if,
-        pc_p4_if      => pc_p4_if,
-        instr_if      => instr_if,
+        hold_release_if  => hold_release_if,
+        pc_if            => pc_if,
+        pc_p4_if         => pc_p4_if,
+        instr_if         => instr_if,
 
         -- decode in
-        pc_id         => pc_if_id,
-        pc_p4_id      => pc_p4_if_id,
-        instr_id      => instr_if_id
+        pc_id            => pc_if_id,
+        pc_p4_id         => pc_p4_if_id,
+        instr_id         => instr_if_id
     );
 
 

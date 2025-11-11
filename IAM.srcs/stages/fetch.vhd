@@ -16,6 +16,8 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
+use work.cond_logic_helpers.check_branch_jump;
+
 entity fetch is
     generic (
         mux_n            : positive := 2;
@@ -37,6 +39,9 @@ entity fetch is
         pc_p4_id         : in std_logic_vector(addr_width - 1 downto 0);
         pc_hold          : in std_logic_vector(addr_width - 1 downto 0);
 
+        -- hzrd hold early release indicator for branch or jump events | to if/id
+        hold_release_if  : out natural range 0 to 1;
+
         -- pc, pc + 4, instr[31:0] | to id
         pc_if            : out std_logic_vector(addr_width - 1 downto 0);
         pc_p4_if         : out std_logic_vector(addr_width - 1 downto 0);
@@ -55,18 +60,11 @@ signal pc_s         : std_logic_vector(addr_width - 1 downto 0);
 
 begin
 
-process(branch_mm, jump_mm, pc_hold_id)
-begin
-    if pc_hold_id = 1 then
-        mux_sel <= 2;
-    elsif branch_mm = 1 or jump_mm = 1 then
-        mux_sel <= 1;
-    else
-        mux_sel <= 0;
-    end if;
-end process;
+mux_sel <= check_branch_jump(branch_mm, jump_mm, pc_hold_id);
+hold_release_if <= 1 when branch_mm = 1 or jump_mm = 1 else 0;
 
-mux_packed_d <= pc_hold & branch_j_addr_mm & pc_p4_id;
+pc_if <= pc_s;
+mux_packed_d <= branch_j_addr_mm & pc_hold & pc_p4_id;
 
 fetch_mux : entity work.mux(Behavioral)
     generic map (
@@ -112,7 +110,5 @@ fetch_adder : entity work.adder(Behavioral)
         in_d2 => std_logic_vector(resize(unsigned(alignment), addr_width)),
         out_d => pc_p4_if
     );
-
-pc_if <= pc_s;
 
 end Behavioral;
