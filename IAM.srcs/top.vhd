@@ -82,15 +82,21 @@ signal reg_d_2_id_ex          : std_logic_vector(data_width - 1 downto 0);
 signal jump_branch_addr_id_ex : std_logic_vector(addr_width - 1 downto 0);
 
 -- execute sigs ---------------------------------------------------------------
--- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu calculation, reg data 2, forwarding data, w reg | to mem
+-- branch ctrl flag | to if
+signal branch_ex              : std_logic;
+
+-- alu zero flag, pc | to if and mem
 signal alu_z_ex               : std_logic;
+signal pc_ex                  : std_logic_vector(addr_width - 1 downto 0);
+
+-- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu calculation, reg data 2, forwarding data, w reg, pc encoding | to mem
 signal ctrl_flags_ex          : std_logic_vector(5 downto 0);
 signal branch_addr_ex         : std_logic_vector(addr_width - 1 downto 0);
 signal jump_addr_ex           : std_logic_vector(addr_width - 1 downto 0);
-signal pc_ex                  : std_logic_vector(addr_width - 1 downto 0);
 signal alu_ex                 : std_logic_vector(data_width - 1 downto 0);
 signal fw_mm_w_d_ex           : std_logic_vector(data_width - 1 downto 0);
 signal w_reg_ex               : std_logic_vector(reg_i_width - 1 downto 0);
+alias  pc_enc_if              : std_logic_vector(7 downto 0) is pc_ex(9 downto 2);
 
 -- ex_mem sigs ----------------------------------------------------------------
 -- mem
@@ -149,17 +155,23 @@ fetch_stage : entity work.fetch(Behavioral)
         mux_n, magic_width, addr_width, data_width, alignment
     )
     port map (
+        clk              => clk,
         rst              => rst,
-
-        -- ctrl unit branch/j flags, branch/jump/pc addr | from mem
-        branch_mm        => branch_mm,
-        jump_mm          => jump_mm,
-        branch_j_addr_mm => return_addr_mm,
 
         -- hazard ctrl flag, pc + 4, pc | from id
         pc_hold_id       => pc_hold_id,
         pc_p4_id         => pc_p4_id,
         pc_hold          => pc_id,
+
+        -- alu zero flag, pc | from ex
+        alu_z_ex         => alu_z_ex,
+        branch_ex        => branch_ex,
+        pc_enc_ex        => pc_enc_if,
+
+        -- ctrl unit branch/j flags, branch/jump/pc addr | from mem
+        branch_mm        => branch_mm,
+        jump_mm          => jump_mm,
+        branch_j_addr_mm => return_addr_mm,
 
         -- hzrd hold early release indicator for branch or jump events | to if/id
         hold_release_if  => hold_release_if,
@@ -283,12 +295,17 @@ execute : entity work.execute(Behavioral)
         w_reg_wb            => w_reg_wb,
         w_d_wb              => w_d_wb,
 
-        -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu calculation, reg data 2, forwarding data, w reg | to mem
+        -- branch ctrl flag | to if
+        branch_ex           => branch_ex,
+
+        -- alu zero flag, pc | to if and mem
         alu_z_ex            => alu_z_ex,
+        pc_ex               => pc_ex,
+
+        -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu calculation, reg data 2, forwarding data, w reg | to mem
         ctrl_flags_ex       => ctrl_flags_ex,
         branch_addr_ex      => branch_addr_ex,
         jump_addr_ex        => jump_addr_ex,
-        pc_ex               => pc_ex,
         alu_ex              => alu_ex,
         fw_mm_w_d_ex        => fw_mm_w_d_ex,
         w_reg_ex            => w_reg_ex

@@ -25,7 +25,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-use work.hzrd_helper.all;
+use work.pc_helper.all;
 
 entity hazard_ctrl is
     generic (

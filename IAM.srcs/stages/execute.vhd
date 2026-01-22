@@ -41,12 +41,17 @@ entity execute is
         w_reg_wb            : in std_logic_vector(4 downto 0);
         w_d_wb              : in std_logic_vector(data_width - 1 downto 0);
 
-        -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu calculation, reg data 2, forwarding data, w reg | to mem
+        -- branch ctrl flag | to if
+        branch_ex           : out std_logic;
+
+        -- alu zero flag, pc | to if and mem
         alu_z_ex            : out std_logic;
+        pc_ex               : out std_logic_vector(addr_width - 1 downto 0);
+
+        -- ctrl_unit flags, branch/j addr, alu calculation, reg data 2, forwarding data, w reg | to mem
         ctrl_flags_ex       : out std_logic_vector(5 downto 0);
         branch_addr_ex      : out std_logic_vector(addr_width - 1 downto 0);
         jump_addr_ex        : out std_logic_vector(addr_width - 1 downto 0);
-        pc_ex               : out std_logic_vector(addr_width - 1 downto 0);
         alu_ex              : out std_logic_vector(data_width - 1 downto 0);
         fw_mm_w_d_ex        : out std_logic_vector(data_width - 1 downto 0);
         w_reg_ex            : out std_logic_vector(reg_i_width - 1 downto 0)
@@ -104,8 +109,9 @@ fw_w_d <= w_d_wb & w_d_mm & reg_d_2_id;
 -- rt 9:5 rd 4:0
 w_reg_mux_d <= rt & rd;
 
-pc_ex         <= pc_id;
-jump_addr_ex  <= shft_jump_branch_addr;
+pc_ex        <= pc_id;
+jump_addr_ex <= shft_jump_branch_addr;
+branch_ex    <= ctrl_flags_id(2);
 
 -- pack necessary ctrl flags
 ctrl_flags_ex <= ctrl_flags_id(3 downto 1) -- mem_r 5, branch 4, jump 3
