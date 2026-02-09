@@ -78,30 +78,14 @@ end process pipeline_stall;
 bht_control : process(clk, z, pc_i_ex)
 begin
     if rising_edge(clk) and branch_ex = '1' then
-        if bht_timer = 0 then
-            -- branch taken, trend towards strong taken prediction
-            if (bht(pc_i_ex) = "00" or bht(pc_i_ex) = "01" or bht(pc_i_ex) = "10") and z = '1' then
-                bht(pc_i_ex) <= std_logic_vector(unsigned(bht(pc_i_ex)) + "01");
+        -- branch taken, trend towards strong taken prediction
+        if (bht(pc_i_ex) = "00" or bht(pc_i_ex) = "01" or bht(pc_i_ex) = "10") and z = '1' then
+            bht(pc_i_ex) <= std_logic_vector(unsigned(bht(pc_i_ex)) + "01");
+        end if;
 
-                if bht(pc_i_ex) = "00" or bht(pc_i_ex) = "01" then -- flush if not-taken was predicted
-                    pred_flush <= 1;
-                    bht_timer  <= 1;
-                else
-                    pred_flush <= 0;
-                    bht_timer  <= bht_timer;
-                end if;
-            end if;
-
-            -- branch not taken, trend towards weak not taken prediction
-            if (bht(pc_i_ex) = "01" or bht(pc_i_ex) = "10" or bht(pc_i_ex) = "11") and z = '0' then
-                bht(pc_i_ex) <= std_logic_vector(unsigned(bht(pc_i_ex)) - "01");
-                pred_flush <= 0;
-                bht_timer <= bht_timer;
-            end if;
-
-        else -- bht_timer active, flushing pipeline, avoid updating bht
-            pred_flush <= 1;
-            bht_timer  <= bht_timer - 1;
+        -- branch not taken, trend towards weak not taken prediction
+        if (bht(pc_i_ex) = "01" or bht(pc_i_ex) = "10" or bht(pc_i_ex) = "11") and z = '0' then
+            bht(pc_i_ex) <= std_logic_vector(unsigned(bht(pc_i_ex)) - "01");
         end if;
     end if;
 end process bht_control;
