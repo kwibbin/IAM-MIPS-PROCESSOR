@@ -55,25 +55,6 @@ branch_if <= check_branch(opcode_if);
 pc_i_if   <= to_integer(unsigned(pc_enc_if));
 pc_i_ex   <= to_integer(unsigned(pc_enc_ex));
 
--- holds the pc when a branch not-taken is predicted
-pipeline_stall : process(clk, branch_if, pc_i_if)
-begin
-    if rising_edge(clk) then
-        if branch_if = '1' and pipeline_timer = 0 then
-            if bht(pc_i_if) = "10" or bht(pc_i_if) = "11" then
-                pred_hold <= 1;
-                pipeline_timer <= 2;
-            else
-                pred_hold <= 0;
-                pipeline_timer <= pipeline_timer;
-            end if;
-        elsif pipeline_timer /= 0 then
-            pred_hold <= 1;
-            pipeline_timer <= pipeline_timer - 1;
-        end if;
-    end if;
-end process pipeline_stall;
-
 -- retroactively update bht depending on ex branch alu result
 bht_control : process(clk, z, pc_i_ex)
 begin
