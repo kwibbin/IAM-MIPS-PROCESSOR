@@ -108,7 +108,7 @@ end package body pc_helper;
 
 package cond_logic_helpers is
     -- calculate branch or jump hazard
-    function check_branch_jump(
+    function check_pc_branch_jump(
         branch_mm  : natural range 0 to 1;
         jump_mm    : natural range 0 to 1;
         pred_hold  : natural range 0 to 1
@@ -116,7 +116,7 @@ package cond_logic_helpers is
 end package cond_logic_helpers;
 
 package body cond_logic_helpers is
-    function check_branch_jump(
+    function check_pc_branch_jump(
         branch_mm  : natural range 0 to 1;
         jump_mm    : natural range 0 to 1;
         pred_hold  : natural range 0 to 1

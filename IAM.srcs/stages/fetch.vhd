@@ -16,7 +16,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-use work.cond_logic_helpers.check_branch_jump;
+use work.cond_logic_helpers.check_pc_branch_jump;
 
 entity fetch is
     generic (
@@ -71,7 +71,7 @@ alias opcode_if     : std_logic_vector(5 downto 0) is instr_if(data_width - 1 do
 
 begin
 
-mux_sel <= check_branch_jump(branch_mm, jump_mm, pred_hold);
+mux_sel <= check_pc_branch_jump(branch_mm, jump_mm, pred_hold);
 hold_release_if <= 1 when branch_mm = 1 or jump_mm = 1 else 0;
 
 pc_if <= pc_s;
