@@ -28,11 +28,15 @@ entity if_id is
 
         -- fetch
         hold_release_if : in natural range 0 to 1;
+        pred_branch_if  : in natural range 0 to 1;
+        pred_pc_if      : in std_logic_vector(addr_width - 1 downto 0);
         pc_if           : in std_logic_vector(addr_width - 1 downto 0);
         pc_p4_if        : in std_logic_vector(addr_width - 1 downto 0);
         instr_if        : in std_logic_vector(data_width - 1 downto 0);
 
         -- decode
+        pred_branch_id  : out natural range 0 to 1;
+        pred_pc_id      : out std_logic_vector(addr_width - 1 downto 0);
         pc_id           : out std_logic_vector(addr_width - 1 downto 0);
         pc_p4_id        : out std_logic_vector(addr_width - 1 downto 0);
         instr_id        : out std_logic_vector(data_width - 1 downto 0)
@@ -48,14 +52,18 @@ begin
 if_id_pipeline_reg : process(clk, rst)
 begin
     if rst = '1' then
-        pc_id    <= (others => '0');
-        pc_p4_id <= (others => '0');
-        instr_id <= (others => '0');
+        pred_branch_id <= 0;
+        pred_pc_id     <= (others => '0');
+        pc_id          <= (others => '0');
+        pc_p4_id       <= (others => '0');
+        instr_id       <= (others => '0');
     end if;
     if rising_edge(clk) and (if_id_hold_id /= 1 or hold_release_if = 1) then -- allow hold_release_if to override hold
-        pc_id    <= pc_if;
-        pc_p4_id <= pc_p4_if;
-        instr_id <= instr_if;
+        pred_branch_id <= pred_branch_if;
+        pred_pc_id     <= pred_pc_id;
+        pc_id          <= pc_if;
+        pc_p4_id       <= pc_p4_if;
+        instr_id       <= instr_if;
     end if;
 end process if_id_pipeline_reg;
 

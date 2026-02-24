@@ -30,10 +30,12 @@ entity fetch is
         clk              : in std_logic;
         rst              : in std_logic;
 
-        -- hazard ctrl flag, pc + 4, pc | from id
+        -- hazard ctrl flag, branch pred en, branch pred pc, pc + 4, pc | from id
         pc_hold_id       : in natural range 0 to 1;
+        pred_branch_id   : in natural range 0 to 1;
+        pred_pc_id       : in std_logic_vector(addr_width - 1 downto 0);
         pc_p4_id         : in std_logic_vector(addr_width - 1 downto 0);
-        pc_hold          : in std_logic_vector(addr_width - 1 downto 0);
+        pc_id            : in std_logic_vector(addr_width - 1 downto 0);
 
         -- alu zero flag, pc_ex [9:2] | from ex
         alu_z_ex         : in std_logic;
@@ -48,7 +50,9 @@ entity fetch is
         -- hzrd hold early release indicator for branch or jump events | to if/id
         hold_release_if  : out natural range 0 to 1;
 
-        -- pc, pc + 4, instr[31:0] | to id
+        -- branch pred en, branch pred pc, pc, pc + 4, instr[31:0] | to id
+        pred_branch_if   : out natural range 0 to 1;
+        pred_pc_if       : out std_logic_vector(addr_width - 1 downto 0);
         pc_if            : out std_logic_vector(addr_width - 1 downto 0);
         pc_p4_if         : out std_logic_vector(addr_width - 1 downto 0);
         instr_if         : out std_logic_vector(data_width - 1 downto 0)
@@ -63,19 +67,14 @@ signal mux_sel      : natural range 0 to mux_3_n - 1;
 signal mux_packed_d : std_logic_vector(addr_width * mux_3_n - 1 downto 0);
 signal mux_out      : std_logic_vector(addr_width - 1 downto 0);
 signal pc_s         : std_logic_vector(addr_width - 1 downto 0);
-signal pred_hold    : natural range 0 to 1;
-signal pred_flush   : natural range 0 to 1;
-
-alias pc_enc_if     : std_logic_vector(7 downto 0) is pc_if(9 downto 2);
-alias opcode_if     : std_logic_vector(5 downto 0) is instr_if(data_width - 1 downto 26);
 
 begin
 
-mux_sel <= check_pc_branch_jump(branch_mm, jump_mm, pred_hold);
+mux_sel <= check_pc_branch_jump(branch_mm, jump_mm, pred_branch_id);
 hold_release_if <= 1 when branch_mm = 1 or jump_mm = 1 else 0;
 
 pc_if <= pc_s;
-mux_packed_d <= branch_j_addr_mm & pc_hold & pc_p4_id;
+mux_packed_d <= branch_j_addr_mm & pc_p4_id & pred_pc_id;
 
 fetch_mux : entity work.mux(Behavioral)
     generic map (
@@ -124,17 +123,16 @@ fetch_adder : entity work.adder(Behavioral)
 
 branch_prediction : entity work.branch_pred(Behavioral)
     port map (
-        clk       => clk,
+        clk         => clk,
 
-        pc_enc_if => pc_enc_if,
-        opcode_if => opcode_if,
+        pc_if       => pc_s,
 
-        z         => alu_z_ex,
-        branch_ex => branch_ex,
-        pc_enc_ex => pc_enc_ex,
+        z           => alu_z_ex,
+        branch_ex   => branch_ex,
+        pc_enc_ex   => pc_enc_ex,
 
-        pred_hold => pred_hold,
-        pred_flush => pred_flush
+        pred_branch => pred_branch_if,
+        pred_pc     => pred_pc_if
     );
 
 end Behavioral;

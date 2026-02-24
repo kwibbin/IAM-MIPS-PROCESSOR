@@ -18,38 +18,42 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity decode is
     generic (
-        mux_n               : positive := 2;
-        reg_i_width         : positive := 5;
-        magic_width         : positive := 16;
-        addr_width          : positive := 32;
-        data_width          : positive := 32
+        mux_n          : positive := 2;
+        reg_i_width    : positive := 5;
+        magic_width    : positive := 16;
+        addr_width     : positive := 32;
+        data_width     : positive := 32
     );
     port (
-        clk                 : in std_logic;
+        clk            : in std_logic;
 
         -- ctrl_unit flag, w register, and w data | from wb
-        reg_w_wb            : in std_logic;
-        w_reg_wb            : in std_logic_vector(4 downto 0);
-        w_d_wb              : in std_logic_vector(data_width - 1 downto 0);
+        reg_w_wb       : in std_logic;
+        w_reg_wb       : in std_logic_vector(4 downto 0);
+        w_d_wb         : in std_logic_vector(data_width - 1 downto 0);
 
-        -- pc, pc + 4, and instr | from if
-        pc_if               : in std_logic_vector(addr_width - 1 downto 0);
-        pc_p4_if            : in std_logic_vector(addr_width - 1 downto 0);
-        instr_if            : in std_logic_vector(data_width - 1 downto 0);
+        -- branch pred en, branch pred pc, pc, pc + 4, and instr | from if
+        pred_branch_if : in natural range 0 to 1;
+        pred_pc_if     : in std_logic_vector(addr_width - 1 downto 0);
+        pc_if          : in std_logic_vector(addr_width - 1 downto 0);
+        pc_p4_if       : in std_logic_vector(addr_width - 1 downto 0);
+        instr_if       : in std_logic_vector(data_width - 1 downto 0);
 
-        -- hazard ctrl flag, pc + 4 | to if
-        pc_hold_id          : out natural range 0 to 1;
-        pc_p4_id            : out std_logic_vector(addr_width - 1 downto 0);
+        -- hazard ctrl flag, branch pred en, branch pred pc, pc + 4 | to if
+        pc_hold_id     : out natural range 0 to 1;
+        pred_branch_id : out natural range 0 to 1;
+        pred_pc_id     : out std_logic_vector(addr_width - 1 downto 0);
+        pc_p4_id       : out std_logic_vector(addr_width - 1 downto 0);
 
         -- hazard ctrl flag | to if/id
-        if_id_hold_id       : out natural range 0 to 1;
+        if_id_hold_id  : out natural range 0 to 1;
 
         -- ctrl_unit flags, instr[25:0], pc, reg data 1/2 | to ex
-        ctrl_flags_id       : out std_logic_vector(11 downto 0);
-        instr_25_0_id       : out std_logic_vector(25 downto 0);
-        pc_id               : out std_logic_vector(addr_width - 1 downto 0);
-        reg_d_1_id          : out std_logic_vector(data_width - 1 downto 0);
-        reg_d_2_id          : out std_logic_vector(data_width - 1 downto 0)
+        ctrl_flags_id  : out std_logic_vector(11 downto 0);
+        instr_25_0_id  : out std_logic_vector(25 downto 0);
+        pc_id          : out std_logic_vector(addr_width - 1 downto 0);
+        reg_d_1_id     : out std_logic_vector(data_width - 1 downto 0);
+        reg_d_2_id     : out std_logic_vector(data_width - 1 downto 0)
     );
 end decode;
 
@@ -67,9 +71,11 @@ alias func            : std_logic_vector(5 downto 0) is instr_if(5 downto 0);
 
 begin
 
-pc_id         <= pc_if;
-instr_25_0_id <= instr_if(25 downto 0);
-mux_packed_d  <= nop & ctrl_flags_buf;
+pred_branch_id <= pred_branch_if;
+pred_pc_id     <= pred_pc_if;
+pc_id          <= pc_if;
+instr_25_0_id  <= instr_if(25 downto 0);
+mux_packed_d   <= nop & ctrl_flags_buf;
 
 -- to if
 pc_p4_id <= pc_p4_if;

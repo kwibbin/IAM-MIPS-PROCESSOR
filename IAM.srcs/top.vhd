@@ -47,12 +47,16 @@ signal rst                    : std_logic;
 signal hold_release_if        : natural range 0 to 1;
 
 -- pc, pc + 4, instr[31:0] | to id
+signal pred_branch_if         : natural range 0 to 1;
+signal pred_pc_if             : std_logic_vector(addr_width - 1 downto 0);
 signal pc_if                  : std_logic_vector(addr_width - 1 downto 0);
 signal pc_p4_if               : std_logic_vector(addr_width - 1 downto 0);
 signal instr_if               : std_logic_vector(data_width - 1 downto 0);
 
 -- if_id sigs -----------------------------------------------------------------
 -- decode
+signal pred_branch_if_id      : natural range 0 to 1;
+signal pred_pc_if_id          : std_logic_vector(addr_width - 1 downto 0);
 signal pc_if_id               : std_logic_vector(addr_width - 1 downto 0);
 signal pc_p4_if_id            : std_logic_vector(addr_width - 1 downto 0);
 signal instr_if_id            : std_logic_vector(data_width - 1 downto 0);
@@ -60,6 +64,8 @@ signal instr_if_id            : std_logic_vector(data_width - 1 downto 0);
 -- decode sigs ----------------------------------------------------------------
 -- hazard ctrl flag, pc + 4 | to if
 signal pc_hold_id             : natural range 0 to 1;
+signal pred_branch_id         : natural range 0 to 1;
+signal pred_pc_id             : std_logic_vector(addr_width - 1 downto 0);
 signal pc_p4_id               : std_logic_vector(addr_width - 1 downto 0);
 
 -- hazard ctrl flag | to if/id
@@ -158,10 +164,12 @@ fetch_stage : entity work.fetch(Behavioral)
         clk              => clk,
         rst              => rst,
 
-        -- hazard ctrl flag, pc + 4, pc | from id
+        -- hazard ctrl flag, branch pred en, branch pred pc, pc + 4, pc | from id
         pc_hold_id       => pc_hold_id,
+        pred_branch_id   => pred_branch_id,
+        pred_pc_id       => pred_pc_id,
         pc_p4_id         => pc_p4_id,
-        pc_hold          => pc_id,
+        pc_id            => pc_id,
 
         -- alu zero flag, pc | from ex
         alu_z_ex         => alu_z_ex,
@@ -176,7 +184,9 @@ fetch_stage : entity work.fetch(Behavioral)
         -- hzrd hold early release indicator for branch or jump events | to if/id
         hold_release_if  => hold_release_if,
 
-        -- pc, pc + 4, instr[31:0] | to id
+        -- branch pred en, branch pred pc, pc, pc + 4, instr[31:0] | to id
+        pred_branch_if   => pred_branch_if,
+        pred_pc_if       => pred_pc_if,
         pc_if            => pc_if,
         pc_p4_if         => pc_p4_if,
         instr_if         => instr_if
@@ -190,21 +200,25 @@ if_id_reg : entity work.if_id(Behavioral)
         mux_n, addr_width, data_width, alignment
     )
     port map (
-        clk              => clk,
-        rst              => rst,
+        clk             => clk,
+        rst             => rst,
 
-        if_id_hold_id    => if_id_hold_id,
+        if_id_hold_id   => if_id_hold_id,
 
         -- fetch out
-        hold_release_if  => hold_release_if,
-        pc_if            => pc_if,
-        pc_p4_if         => pc_p4_if,
-        instr_if         => instr_if,
+        hold_release_if => hold_release_if,
+        pred_branch_if  => pred_branch_if,
+        pred_pc_if      => pred_pc_if,
+        pc_if           => pc_if,
+        pc_p4_if        => pc_p4_if,
+        instr_if        => instr_if,
 
         -- decode in
-        pc_id            => pc_if_id,
-        pc_p4_id         => pc_p4_if_id,
-        instr_id         => instr_if_id
+        pred_branch_id  => pred_branch_if_id,
+        pred_pc_id      => pred_pc_if_id,
+        pc_id           => pc_if_id,
+        pc_p4_id        => pc_p4_if_id,
+        instr_id        => instr_if_id
     );
 
 
@@ -215,31 +229,35 @@ decode : entity work.decode(Behavioral)
         mux_n, reg_i_width, magic_width, addr_width, data_width
     )
     port map (
-        clk           => clk,
+        clk            => clk,
 
         -- ctrl_unit flag, w register, and w data | from wb
-        reg_w_wb      => reg_w_wb,
-        w_reg_wb      => w_reg_wb,
-        w_d_wb        => w_d_wb,
+        reg_w_wb       => reg_w_wb,
+        w_reg_wb       => w_reg_wb,
+        w_d_wb         => w_d_wb,
 
-        -- pc, pc + 4, and instr | from if
-        pc_if         => pc_if_id,
-        pc_p4_if      => pc_p4_if_id,
-        instr_if      => instr_if_id,
+        -- branch pred en, branch pred pc, pc, pc + 4, and instr | from if
+        pred_branch_if => pred_branch_if_id,
+        pred_pc_if     => pred_pc_if_id,
+        pc_if          => pc_if_id,
+        pc_p4_if       => pc_p4_if_id,
+        instr_if       => instr_if_id,
 
-        -- hazard ctrl flag, pc + 4 | to if
-        pc_hold_id    => pc_hold_id,
-        pc_p4_id      => pc_p4_id,
+        -- hazard ctrl flag, branch pred en, branch pred pc, pc + 4 | to if
+        pc_hold_id     => pc_hold_id,
+        pred_branch_id => pred_branch_id,
+        pred_pc_id     => pred_pc_id,
+        pc_p4_id       => pc_p4_id,
 
         -- hazard ctrl flag | to if/id
-        if_id_hold_id => if_id_hold_id,
+        if_id_hold_id  => if_id_hold_id,
 
         -- ctrl_unit flags, instr[25:0], pc, reg data 1/2 | to ex
-        ctrl_flags_id => ctrl_flags_id,
-        instr_25_0_id => instr_25_0_id,
-        pc_id         => pc_id,
-        reg_d_1_id    => reg_d_1_id,
-        reg_d_2_id    => reg_d_2_id
+        ctrl_flags_id  => ctrl_flags_id,
+        instr_25_0_id  => instr_25_0_id,
+        pc_id          => pc_id,
+        reg_d_1_id     => reg_d_1_id,
+        reg_d_2_id     => reg_d_2_id
     );
 
 
