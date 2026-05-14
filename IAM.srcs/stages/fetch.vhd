@@ -61,7 +61,6 @@ end fetch;
 
 architecture Behavioral of fetch is
 
-
 constant mux_3_n    : positive := 3;
 signal mux_sel      : natural range 0 to mux_3_n - 1;
 signal mux_packed_d : std_logic_vector(addr_width * mux_3_n - 1 downto 0);
