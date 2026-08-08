@@ -46,7 +46,13 @@ begin
     end if;
 end process;
 
-r_d1 <= reg_array(to_integer(unsigned(r_reg1)));
-r_d2 <= reg_array(to_integer(unsigned(r_reg2)));
+-- wb commits on the clock edge that ends its own cycle, but decode reads this
+-- file combinationally during that same cycle. the forwarding unit only reaches
+-- back 2 instructions, so without bypassing the in flight write here a read
+-- exactly 3 instructions behind it would latch the stale value.
+r_d1 <= w_d when reg_w = '1' and w_reg /= "00000" and w_reg = r_reg1
+        else reg_array(to_integer(unsigned(r_reg1)));
+r_d2 <= w_d when reg_w = '1' and w_reg /= "00000" and w_reg = r_reg2
+        else reg_array(to_integer(unsigned(r_reg2)));
 
 end Behavioral;

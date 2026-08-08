@@ -20,16 +20,18 @@ entity execute is
     generic (
         reg_i_width         : positive := 5;
         addr_width          : positive := 32;
-        data_width          : positive := 32
+        data_width          : positive := 32;
+        alignment           : std_logic_vector(3 downto 0) := "0100"
     );
     port (
-        -- ctrl_unit flags, instr[25:0], pc, reg_d_1/2, branch/j addr | from id
+        -- ctrl_unit flags, instr[25:0], pc, reg_d_1/2, branch/j addr, branch prediction | from id
         ctrl_flags_id       : in std_logic_vector(11 downto 0);
         instr_25_0_id       : in std_logic_vector(25 downto 0);
         pc_id               : in std_logic_vector(addr_width - 1 downto 0);
         reg_d_1_id          : in std_logic_vector(data_width - 1 downto 0);
         reg_d_2_id          : in std_logic_vector(data_width - 1 downto 0);
         jump_branch_addr_id : in std_logic_vector(addr_width - 1 downto 0);
+        pred_taken_id       : in std_logic;
 
         -- ctrl_unit flag, reg file w reg | from mm
         reg_w_mm            : in std_logic;
@@ -41,16 +43,18 @@ entity execute is
         w_reg_wb            : in std_logic_vector(4 downto 0);
         w_d_wb              : in std_logic_vector(data_width - 1 downto 0);
 
-        -- branch ctrl flag | to if
+        -- branch ctrl flag, alu zero flag, pc, branch target | to if
         branch_ex           : out std_logic;
-
-        -- alu zero flag, pc | to if and mem
         alu_z_ex            : out std_logic;
         pc_ex               : out std_logic_vector(addr_width - 1 downto 0);
-
-        -- ctrl_unit flags, branch/j addr, alu calculation, reg data 2, forwarding data, w reg | to mem
-        ctrl_flags_ex       : out std_logic_vector(5 downto 0);
         branch_addr_ex      : out std_logic_vector(addr_width - 1 downto 0);
+
+        -- branch resolution vs the prediction, and the pc to resume from | to if and id
+        mispredict_ex       : out std_logic;
+        recover_pc_ex       : out std_logic_vector(addr_width - 1 downto 0);
+
+        -- ctrl_unit flags, j addr, alu calculation, reg data 2, forwarding data, w reg | to mem
+        ctrl_flags_ex       : out std_logic_vector(5 downto 0);
         jump_addr_ex        : out std_logic_vector(addr_width - 1 downto 0);
         alu_ex              : out std_logic_vector(data_width - 1 downto 0);
         fw_mm_w_d_ex        : out std_logic_vector(data_width - 1 downto 0);
@@ -70,6 +74,14 @@ signal w_reg_mux_d           : std_logic_vector(reg_i_width * mux_2_n - 1 downto
 signal w_reg_mux_sel         : natural range 0 to mux_2_n - 1;
 
 signal alu_ctrl              : std_logic_vector(3 downto 0);
+signal alu_z                 : std_logic;
+
+-- branch resolution sigs
+signal branch_addr           : std_logic_vector(addr_width - 1 downto 0);
+signal pc_p4                 : std_logic_vector(addr_width - 1 downto 0);
+signal taken                 : std_logic;
+signal recover_mux_sel       : natural range 0 to mux_2_n - 1;
+signal recover_mux_d         : std_logic_vector(addr_width * mux_2_n - 1 downto 0);
 
 -- forwarding unit sigs
 signal fw_d_1_sel            : natural range 0 to mux_3_n - 1;
@@ -100,8 +112,9 @@ shft_jump_branch_addr <= std_logic_vector(shift_left(unsigned(jump_branch_addr_i
 -- wb data 95:64, mm data 63:32, reg 1 read data 31:0
 fw_1_d <= w_d_wb & w_d_mm & reg_d_1_id;
 
--- (branch offset or imm) << 2 127:96, wb data 95:64, mm data 63:32, reg 2 read data 31:0
-fw_2_d <= shft_jump_branch_addr & w_d_wb & w_d_mm & reg_d_2_id;
+-- sign extended imm 127:96, wb data 95:64, mm data 63:32, reg 2 read data 31:0
+-- the imm reaches the alu unshifted; the << 2 only belongs on branch/jump offsets
+fw_2_d <= jump_branch_addr_id & w_d_wb & w_d_mm & reg_d_2_id;
 
 -- wb data 95:64, mm data 63:32, reg 2 read data 31:0
 fw_w_d <= w_d_wb & w_d_mm & reg_d_2_id;
@@ -109,9 +122,23 @@ fw_w_d <= w_d_wb & w_d_mm & reg_d_2_id;
 -- rt 9:5 rd 4:0
 w_reg_mux_d <= rt & rd;
 
-pc_ex        <= pc_id;
-jump_addr_ex <= shft_jump_branch_addr;
-branch_ex    <= ctrl_flags_id(2);
+pc_ex          <= pc_id;
+jump_addr_ex   <= shft_jump_branch_addr;
+branch_ex      <= ctrl_flags_id(2);
+alu_z_ex       <= alu_z;
+branch_addr_ex <= branch_addr;
+
+-- branch resolution: the alu zero flag is the condition result for every branch op
+taken <= ctrl_flags_id(2) and alu_z;
+
+-- a prediction that does not match the resolved outcome has to be undone. the
+-- xor also covers the btb aliasing case, where a non-branch was predicted taken:
+-- taken is 0 there, so the pc gets pulled back to pc + 4.
+mispredict_ex <= taken xor pred_taken_id;
+
+-- resume at the target if it should have been taken, otherwise the fall through
+recover_mux_sel <= 1 when taken = '1' else 0;
+recover_mux_d   <= branch_addr & pc_p4;
 
 -- pack necessary ctrl flags
 ctrl_flags_ex <= ctrl_flags_id(3 downto 1) -- mem_r 5, branch 4, jump 3
@@ -127,7 +154,30 @@ execute_adder : entity work.adder(Behavioral)
         in_d1 => pc_id,
         in_d2 => shft_jump_branch_addr,
 
-        out_d => branch_addr_ex
+        out_d => branch_addr
+    );
+
+recover_adder : entity work.adder(Behavioral)
+    generic map(
+        out_width => addr_width
+    )
+    port map (
+        in_d1 => pc_id,
+        in_d2 => std_logic_vector(resize(unsigned(alignment), addr_width)),
+
+        out_d => pc_p4
+    );
+
+recover_mux : entity work.mux(Behavioral)
+    generic map (
+        in_n      => mux_2_n,
+        out_width => addr_width
+    )
+    port map (
+        sel   => recover_mux_sel,
+        in_d  => recover_mux_d,
+
+        out_d => recover_pc_ex
     );
 
 alu_ctrl_unit : entity work.alu_ctrl(Behavioral)
@@ -202,7 +252,7 @@ alu : entity work.alu(Behavioral)
         shamt    => shamt,
         alu_ctrl => alu_ctrl,
 
-        zero     => alu_z_ex,
+        zero     => alu_z,
         out_d    => alu_ex
     );
 
