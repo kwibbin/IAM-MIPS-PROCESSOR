@@ -32,97 +32,79 @@ architecture Behavioral of instruction_mem is
 
     constant addr_range : natural := 2 ** magic_width - 1;  -- 64KB / 4-byte = 16K words
     type mem_arr is array(0 to addr_range) of std_logic_vector(7 downto 0);
+    -- branch prediction test; see instr_mem_ex/branch_pred.txt
+    --
+    -- the bht starts at weak not-taken and the btb starts empty, so a branch has
+    -- to run more than once before it can ever be predicted taken. the loop below
+    -- runs its branch 3 times to walk every predictor state:
+    --
+    --   pass 1  btb miss     -> predict nt, resolves taken     -> mispredict
+    --   pass 2  btb hit, 10  -> predict t,  resolves taken     -> correct, no bubble
+    --   pass 3  btb hit, 11  -> predict t,  resolves not taken -> mispredict, recover to pc + 4
+    --
+    -- expected end state: $1 = 0, $2 = 3, $3 = 7, $4 = 0, $5 = 5
+    -- $4 is the flush canary: it is only ever written from a wrong path, so a
+    -- non-zero $4 means a mispredicted instruction was allowed to retire
     signal instr_ROM : mem_arr := (
-        -- beq $2, $2, 10000000
-        0 => "00001000",
-        1 => "01000010",
+        --  0x0 | 04010003 | addi $1, $0, 3   loop counter
+        0 => "00000100",
+        1 => "00000001",
         2 => "00000000",
-        3 => "10000000",
+        3 => "00000011",
 
-        -- -- addi $1, $0, 4
-        -- 0 => "00000100",
-        -- 1 => "00000001",
-        -- 2 => "00000000",
-        -- 3 => "00000100",
-        -- -- addi $2, $0, 4
-        -- 4 => "00000100",
-        -- 5 => "00000010",
-        -- 6 => "00000000",
-        -- 7 => "00000100",
-        -- -- addi $3, $0, 4
-        -- 8 => "00000100",
-        -- 9 => "00000011",
-        -- 10 => "00000000",
-        -- 11 => "00000100",
-        -- -- addi $1, $0, 4
+        --  0x4 | 04020000 | addi $2, $0, 0   iteration counter
+        4 => "00000100",
+        5 => "00000010",
+        6 => "00000000",
+        7 => "00000000",
 
-        -- -- NOPS
-        -- 12 => "00000000",
-        -- 13 => "00000000",
-        -- 14 => "00000000",
-        -- 15 => "00000000",
+        --  0x8 | 04040000 | addi $4, $0, 0   flush canary
+        8 => "00000100",
+        9 => "00000100",
+        10 => "00000000",
+        11 => "00000000",
 
-        -- 16 => "00000000",
-        -- 17 => "00000000",
-        -- 18 => "00000000",
-        -- 19 => "00000000",
+        -- 0xC | 04420001 | addi $2, $2, 1   LOOP:
+        12 => "00000100",
+        13 => "01000010",
+        14 => "00000000",
+        15 => "00000001",
 
-        -- 20 => "00000000",
-        -- 21 => "00000000",
-        -- 22 => "00000000",
-        -- 23 => "00000000",
+        -- 0x10 | 0421ffff | addi $1, $1, -1  negative imm, exercises sign extension
+        16 => "00000100",
+        17 => "00100001",
+        18 => "11111111",
+        19 => "11111111",
 
-        -- -- DATA MEM TEST
-        -- -- sw $1, 4($0)
-        -- 24 => "00101000",
-        -- 25 => "00000001",
-        -- 26 => "00000000",
-        -- 27 => "00000100",
-        -- -- DATA MEM TEST
+        -- 0x14 | 1820fffe | bgtz $1, -2      backwards to LOOP, target 20 - 8 = 12
+        20 => "00011000",
+        21 => "00100000",
+        22 => "11111111",
+        23 => "11111110",
 
-        -- -- FW TEST
-        -- -- addi $1, $1, 6
-        -- 28 => "00000100",
-        -- 29 => "00100001",
-        -- 30 => "00000000",
-        -- 31 => "00000110",
-        -- -- addi $1, $1, 6
-        -- 32 => "00000100",
-        -- 33 => "00100001",
-        -- 34 => "00000000",
-        -- 35 => "00000110",
-        -- -- FW TEST
+        -- 0x18 | 04030007 | addi $3, $0, 7   loop exit lands here
+        24 => "00000100",
+        25 => "00000011",
+        26 => "00000000",
+        27 => "00000111",
 
-        -- -- HZRD TEST LW
-        -- -- lw $4, 0($0)
-        -- 36 => "00100100",
-        -- 37 => "00000100",
-        -- 38 => "00000000",
-        -- 39 => "00000000",
-        -- -- addi $4, $2, 4
-        -- 40 => "00000100",
-        -- 41 => "01000100",
-        -- 42 => "00000000",
-        -- 43 => "00000100",
-        -- -- HZRD TEST LW
+        -- 0x1C | 08000002 | beq $0, $0, 2    always taken, forward, target 28 + 8 = 36
+        28 => "00001000",
+        29 => "00000000",
+        30 => "00000000",
+        31 => "00000010",
 
-        -- -- HZRD TEST BEQ
-        -- -- beq $2, $2, 10000000
-        -- 36 => "00001000",
-        -- 37 => "01000010",
-        -- 38 => "00000000",
-        -- 39 => "10000000",
-        -- -- addi $4, $2, 4
-        -- 40 => "00000100",
-        -- 41 => "01000100",
-        -- 42 => "00000000",
-        -- 43 => "00000100",
-        -- -- HZRD TEST BEQ
+        -- 0x20 | 04040009 | addi $4, $0, 9   SHOULD GET FLUSHED, never reachable otherwise
+        32 => "00000100",
+        33 => "00000100",
+        34 => "00000000",
+        35 => "00001001",
 
-        -- 00000100 00000001 00000000 00000100 ----------- addi $1, $0, 4
-        -- 00101000 00000001 00000000 00000100 ----------- sw $1, 4($0)
-
-        -- x => "00000000",
+        -- 0x24 | 04050005 | addi $5, $0, 5   end marker
+        36 => "00000100",
+        37 => "00000101",
+        38 => "00000000",
+        39 => "00000101",
 
         others => (others => '0')
     );

@@ -16,7 +16,11 @@
 -- Additional Comments:
 --    use cases:
 --        reg being used the instr after the same reg is receiving data from a mem read
---        branch & jump preventing unwanted instructions from being processed
+--        jump preventing unwanted instructions from being processed
+--
+--    branches are no longer handled here; the branch predictor steers fetch and
+--    ex flushes decode on a misprediction, so blanket NOP-ing after every branch
+--    would throw away the correctly predicted path
 --
 ----------------------------------------------------------------------------------
 
@@ -25,7 +29,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-use work.hzrd_helper.all;
+use work.pc_helper.all;
 
 entity hazard_ctrl is
     generic (
@@ -86,8 +90,8 @@ begin
         if timer = 0 then
             if (rs_id = rt_ex or rt_id = rt_ex) and mem_r_ex = 1 then -- only care about destination reg of lw instr
                 timer <= 2; -- load data hazard
-            elsif check_branch_jump(opcode_ex, func_ex) then -- from hzrd_helper
-                timer <= 1; -- jump or branch control hazard
+            elsif check_jump(opcode_ex, func_ex) = '1' then -- from pc_helper
+                timer <= 1; -- jump control hazard
             else
                 timer <= 0; -- no hazard
             end if;
@@ -100,8 +104,8 @@ end process;
 process(opcode, rs_rt_id, func, timer)
 begin
     if timer = 0 then
-        -- (load data hazard) or (jump/branch control hazard)
-        if ((rs_id = rt_ex or rt_id = rt_ex) and mem_r_ex = 1) or (check_branch_jump(opcode_ex, func_ex)) = '1' then
+        -- (load data hazard) or (jump control hazard)
+        if ((rs_id = rt_ex or rt_id = rt_ex) and mem_r_ex = 1) or check_jump(opcode_ex, func_ex) = '1' then
             pc_hold_s    <= 1;
             if_id_hold_s <= 1;
             nop_ctrl_s   <= 1;

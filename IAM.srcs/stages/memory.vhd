@@ -26,18 +26,15 @@ entity memory is
     port (
         clk            : in std_logic;
 
-        -- alu zero flag, ctrl_unit flags, branch/j addr, pc, alu calculation, forwarding data, w reg | from ex
-        alu_z_ex       : in std_logic;
+        -- ctrl_unit flags, j addr, pc, alu calculation, forwarding data, w reg | from ex
         ctrl_flags_ex  : in std_logic_vector(5 downto 0); -- mem_r 5, branch 4, jump 3, mem_to_reg 2, mem_w 1, reg_w 0
-        branch_addr_ex : in std_logic_vector(addr_width - 1 downto 0);
         jump_addr_ex   : in std_logic_vector(addr_width - 1 downto 0);
         pc_ex          : in std_logic_vector(addr_width - 1 downto 0);
         alu_ex         : in std_logic_vector(data_width - 1 downto 0);
         fw_mm_w_d_ex   : in std_logic_vector(data_width - 1 downto 0);
         w_reg_ex       : in std_logic_vector(reg_i_width - 1 downto 0);
 
-        -- ctrl_unit branch/j flags, branch/j address | to if
-        branch_mm      : out natural range 0 to mux_n - 1;
+        -- ctrl_unit j flag, j address | to if
         jump_mm        : out natural range 0 to mux_n - 1;
         return_addr_mm : out std_logic_vector(addr_width - 1 downto 0);
 
@@ -52,25 +49,22 @@ end memory;
 
 architecture Behavioral of memory is
 
-signal resolved_branch  : natural range 0 to mux_n - 1;
 signal resolved_jump    : natural range 0 to mux_n - 1;
-signal pc_branch_addr   : std_logic_vector(addr_width - 1 downto 0);
 
-signal pc_branch_packed : std_logic_vector(addr_width * mux_n - 1 downto 0);
 signal mux1_jump_packed : std_logic_vector(addr_width * mux_n - 1 downto 0);
 
 alias addr              : std_logic_vector(magic_width - 1 downto 0) is alu_ex(magic_width - 1 downto 0);
 
 begin
 
-process(alu_z_ex, ctrl_flags_ex(3), ctrl_flags_ex(4))
+-- branches are resolved in ex against the prediction; only the unconditional
+-- jumps still redirect the pc from here
+process(ctrl_flags_ex(3))
 begin
-    resolved_branch <= 1 when alu_z_ex = '1' and ctrl_flags_ex(4) = '1' else 0; -- branch 4
     resolved_jump <= 1 when ctrl_flags_ex(3) = '1' else 0; --jump 3
 end process;
 
-pc_branch_packed <= branch_addr_ex & pc_ex;
-mux1_jump_packed <= jump_addr_ex & pc_branch_addr;
+mux1_jump_packed <= jump_addr_ex & pc_ex;
 
 process(alu_ex, w_reg_ex, ctrl_flags_ex)
 begin
@@ -81,20 +75,7 @@ begin
 end process;
 
 -- to if
-branch_mm <= resolved_branch;
-jump_mm   <= resolved_jump;
-
-branch_mux : entity work.mux(Behavioral)
-    generic map (
-        in_n      => mux_n,
-        out_width => addr_width
-    )
-    port map (
-        sel   => resolved_branch,
-        in_d  => pc_branch_packed,
-
-        out_d => pc_branch_addr
-    );
+jump_mm <= resolved_jump;
 
 jump_mux : entity work.mux(Behavioral)
     generic map (

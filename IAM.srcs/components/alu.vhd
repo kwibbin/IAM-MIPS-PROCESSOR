@@ -66,19 +66,22 @@ begin
             when "1001" =>      -- Branch if not equal (bneq)
                 d <= (others => '0') when in_d1 /= in_d2 else (others => '1');
 
-            when "1010" =>      -- beqz, lw, sw, lh, sh
+            -- in_d1 is rs and in_d2 is rt. as in mips, the single register
+            -- branches test rs and leave rt unused, and the two register
+            -- compares are ordered rs <> rt
+            when "1010" =>      -- beqz; rs = 0
                 d <= in_d1;
 
-            when "1011" =>      -- Branch if < 0
+            when "1011" =>      -- bltz; rs < 0
                 d <= (others => '0') when signed(in_d1) < signed(zero_c) else (others => '1');
 
-            when "1100" =>      -- Branch if > 0
+            when "1100" =>      -- bgtz; rs > 0
                 d <= (others => '0') when signed(in_d1) > signed(zero_c) else (others => '1');
 
-            when "1101" =>      -- Branch if 1 < 2
+            when "1101" =>      -- blt; rs < rt
                 d <= (others => '0') when signed(in_d1) < signed(in_d2) else (others => '1');
 
-            when "1110" =>      -- Branch if 1 > 2
+            when "1110" =>      -- bgt; rs > rt
                 d <= (others => '0') when signed(in_d1) > signed(in_d2) else (others => '1');
 
             when others =>

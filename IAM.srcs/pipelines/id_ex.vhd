@@ -32,6 +32,7 @@ entity id_ex is
         reg_d_1_id          : in std_logic_vector(data_width - 1 downto 0);
         reg_d_2_id          : in std_logic_vector(data_width - 1 downto 0);
         pc_id               : in std_logic_vector(addr_width - 1 downto 0);
+        pred_taken_id       : in std_logic;
 
         -- execute
         ctrl_flags_ex       : out std_logic_vector(11 downto 0);
@@ -39,7 +40,8 @@ entity id_ex is
         reg_d_1_ex          : out std_logic_vector(data_width - 1 downto 0);
         reg_d_2_ex          : out std_logic_vector(data_width - 1 downto 0);
         pc_ex               : out std_logic_vector(addr_width - 1 downto 0);
-        jump_branch_addr_ex : out std_logic_vector(addr_width - 1 downto 0)
+        jump_branch_addr_ex : out std_logic_vector(addr_width - 1 downto 0);
+        pred_taken_ex       : out std_logic
     );
 end id_ex;
 
@@ -58,6 +60,7 @@ begin
         reg_d_1_ex          <= (others => '0');
         reg_d_2_ex          <= (others => '0');
         jump_branch_addr_ex <= (others => '0');
+        pred_taken_ex       <= '0';
     end if;
     if rising_edge(clk) then
         ctrl_flags_ex       <= ctrl_flags_id;
@@ -65,7 +68,10 @@ begin
         pc_ex               <= pc_id;
         reg_d_1_ex          <= reg_d_1_id;
         reg_d_2_ex          <= reg_d_2_id;
-        jump_branch_addr_ex <= std_logic_vector(resize(unsigned(immediate), addr_width)); -- imm region 16 -> 32 bit
+        -- imm region 16 -> 32 bit; sign extended so backwards branch offsets
+        -- (loop controls) resolve to an address behind the branch
+        jump_branch_addr_ex <= std_logic_vector(resize(signed(immediate), addr_width));
+        pred_taken_ex       <= pred_taken_id;
     end if;
 end process id_ex_pipeline_reg;
 
